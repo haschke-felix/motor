@@ -5,6 +5,9 @@ public:
 	 Control();
 	 void init();
 	 void process();
+	 void setPWM(byte pwm);
+	 byte getPWM() {return engine_.PWM;}
+	 void writeEnginePWM();
 private:
 	 enum EngineMode : byte{
 		  ON,
@@ -12,9 +15,9 @@ private:
 	 };
 
 	 enum CapacitorMode : byte{
-		  Charge,
-		  Discharge,
-		  Nothing,
+		 Charge,
+		 Discharge,
+		 Nothing,
 	 };
 
 	 struct Capacitor{

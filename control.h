@@ -3,7 +3,9 @@ class Control
 {
 public:
 	 Control();
-	 void init();
+	 void init(volatile byte *send_buffer, volatile byte *receive_buffer, volatile bool *evaluate);
+	 void process();
+	 void evaluate();
 private:
 	 enum EngineMode : byte{
 		  ON,
@@ -30,4 +32,8 @@ private:
 	 Engine engine_;
 	 Capacitor cp1_;
 	 Capacitor cp2_;
+
+	 volatile byte * send_buffer_;
+	 volatile byte * receive_buffer_;
+	 volatile bool * evaluate_;
 };

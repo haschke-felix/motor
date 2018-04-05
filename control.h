@@ -2,23 +2,27 @@
 class Control
 {
 public:
+	enum EngineMode : byte{
+		 ON,
+		 OFF,
+	};
+
+	enum CapacitorMode : byte{
+		Charge,
+		Discharge,
+		Disabled,
+	};
 	 Control();
 	 void init();
 	 void process();
 	 void setPWM(byte pwm);
 	 byte getPWM() {return engine_.PWM;}
+	 void setCP1Mode(CapacitorMode mode);
+	 CapacitorMode getCP1Mode(){return cp1_.mode;}
+	 void setCP2Mode(CapacitorMode mode);
+	 CapacitorMode getCP2Mode(){return cp2_.mode;}
 	 void writeEnginePWM();
 private:
-	 enum EngineMode : byte{
-		  ON,
-		  OFF,
-	 };
-
-	 enum CapacitorMode : byte{
-		 Charge,
-		 Discharge,
-		 Nothing,
-	 };
 
 	 struct Capacitor{
 		  CapacitorMode mode;

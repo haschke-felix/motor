@@ -5,19 +5,23 @@ DataManager::DataManager()
 
 }
 
-void DataManager::init(volatile byte * send_buffer, volatile byte * receive_buffer, volatile bool * evaluate){
+void DataManager::init(volatile byte * send_buffer, volatile byte * receive_buffer, volatile bool * evaluate)
+{
 	send_buffer_ = send_buffer;
 	receive_buffer_ = receive_buffer;
 	evaluate_ = evaluate;
 	control_.init();
 }
 
-void DataManager::process(){
+void DataManager::process()
+{
 	if(*evaluate_){
 		evaluate();
 	}
+	control_.process();
 }
 
-void DataManager::evaluate(){
+void DataManager::evaluate()
+{
 
 }

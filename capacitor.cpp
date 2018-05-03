@@ -51,7 +51,11 @@ void Capacitor::initPWM()
 
 void Capacitor::process()
 {
-	if(mode_ & Update){
+	if(mode_ & InProcess){
+		processDischarge();
+		processCharge();
+	}
+	else if(mode_ & Update){
 		processDischarge();
 		processCharge();
 		mode_ &= ~ Update;
@@ -60,6 +64,9 @@ void Capacitor::process()
 
 void Capacitor::processCharge()
 {
+	if(mode_ == InProcess){
+		return;
+	}
 	bool charge = mode_ & Charge && !(mode_ & Discharge);
 
 	// toggle relay

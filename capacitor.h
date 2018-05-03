@@ -34,8 +34,21 @@ public:
 
 
 private:
-	 enum Processes{
+	 enum Process{
+		 Nothing,
+		 ShutdownEngineBattery, // first Phase, decouple Engine from Battery
+		 ClearDischarge,  // enable
+		 StartEngine,
 
+		 ShutdownEngine,
+		 SetDischarge,   // disable
+		 StartEngineBattery,
+
+		 SetChargeMosfet, // disable
+		 SetCharge,       // disable
+
+		 ClearCharge,	   //enable
+		 ClearChargeMosfet, // enable
 	 };
 
 	 volatile byte * port_discharge_, *ddr_discharge_;
@@ -54,4 +67,6 @@ private:
 	 int level_;
 	 byte charge_pwm_;
 	 Engine * engine_;
+
+	 Process next_process_;
 };

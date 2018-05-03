@@ -1,5 +1,4 @@
 #include "capacitor.h"
-
 Capacitor::Capacitor()
 {
 
@@ -8,8 +7,10 @@ Capacitor::Capacitor()
 void Capacitor::init(volatile byte *port_discharge, volatile byte *ddr_dicharge, byte pin_discharge,
                      volatile byte *port_charge, volatile byte *ddr_charge, byte pin_charge,
                      volatile byte *ddr_charge_mosfet, byte pin_charge_mosfet, volatile byte *tccr_charge_mosfet,
-                     volatile byte *ocr_h_charge_mosfet, volatile byte *ocr_l_charge_mosfet)
+                     volatile byte *ocr_h_charge_mosfet, volatile byte *ocr_l_charge_mosfet, Engine * engine)
 {
+	engine_ = engine;
+
 	// discharge pin declaration
 	port_discharge_ = port_discharge;
 	ddr_discharge_ = ddr_dicharge;
@@ -40,7 +41,7 @@ void Capacitor::init(volatile byte *port_discharge, volatile byte *ddr_dicharge,
 void Capacitor::initPWM()
 {
 	//	turn off interrupts (is needed to write OCR1A usw)
-	cli();
+//	cli();
 	bitSet(*ddr_charge_mosfet_,pin_charge_mosfet_);
 	bitSet(*tccr_charge_mosfet_,0);
 	bitSet(*tccr_charge_mosfet_,(pin_charge_mosfet_ == 5 ? 7 : 5));

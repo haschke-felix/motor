@@ -12,8 +12,8 @@ public:
 	 void process();
 	 void writeEnginePWM();
 
-	 Engine engine_;
-	 Capacitor cp1_;
-	 Capacitor cp2_;
+	 Engine  engine_;
+	 Capacitor  cp1_;
+	 Capacitor  cp2_;
 private:
 };

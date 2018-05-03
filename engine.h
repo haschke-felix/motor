@@ -8,13 +8,15 @@ public:
 	enum EngineMode : byte{
 		ON,
 		OFF,
-		Capacitor,
+		CAPACITOR,
 		InProcess
 	};
 
-	void init(volatile byte * port_motor_pwm, volatile byte * ddr_motor_pwm, byte pin_motor_pwm,
-	          volatile byte *port_motor_vcc, volatile byte * ddr_motor_vcc, byte pin_motor_vcc);
+	void init(volatile byte *port_motor_vcc, volatile byte * ddr_motor_vcc, byte pin_motor_vcc,
+	          volatile byte * port_motor_pwm, volatile byte * ddr_motor_pwm, byte pin_motor_pwm,
+	          volatile byte *tccr_motor_vcc, volatile byte *ocr_h_motor_pwm, volatile byte *ocr_l_motor_pwm);
 	void process();
+	void initPWM();
 	void processPWM(byte pwm);
 	void setPWM(byte pwm);
 	byte getPWM(){return pwm_;}
@@ -42,6 +44,11 @@ private:
 	byte pin_motor_pwm_;
 	volatile byte *port_motor_vcc_, *ddr_motor_vcc_;
 	byte pin_motor_vcc_;
+
+	volatile byte * ddr_mosfet_;
+	byte pin_mosfet_;
+	volatile byte * tccr_motor_vcc_;
+	volatile byte * ocr_h_motor_vcc_, *ocr_l_mosfet_;
 
 	EngineMode mode_;
 	Process next_process_;

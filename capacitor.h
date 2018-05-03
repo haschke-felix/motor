@@ -1,5 +1,6 @@
 #pragma once
 #include "avr.h"
+#include "engine.h"
 
 class Capacitor
 {
@@ -8,7 +9,7 @@ public:
 	 void init(volatile byte *port_discharge, volatile byte *ddr_dicharge, byte pin_discharge,
 	           volatile byte *port_charge, volatile byte *ddr_charge, byte pin_charge,
 	           volatile byte *ddr_charge_mosfet, byte pin_charge_mosfet,
-	           volatile byte *tccr_charge_mosfet, volatile byte *ocr_h_charge_mosfet, volatile byte *ocr_l_charge_mosfet);
+	           volatile byte *tccr_charge_mosfet, volatile byte *ocr_h_charge_mosfet, volatile byte *ocr_l_charge_mosfet, Engine *engine);
 	 void initPWM();
 	 void process();
 	 void processCharge();
@@ -52,4 +53,5 @@ private:
 	 long long int time_; // time of charge or discharge
 	 int level_;
 	 byte charge_pwm_;
+	 Engine * engine_;
 };

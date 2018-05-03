@@ -35,12 +35,17 @@ void Capacitor::init(volatile byte *port_discharge, volatile byte *ddr_dicharge,
 	bitSet(*ddr_charge_,pin_charge_);
 
 	initPWM();
-
 }
 
 void Capacitor::initPWM()
 {
-
+	//	turn off interrupts (is needed to write OCR1A usw)
+	cli();
+	bitSet(*ddr_charge_mosfet_,pin_charge_mosfet_);
+	bitSet(*tccr_charge_mosfet_,0);
+	bitSet(*tccr_charge_mosfet_,(pin_charge_mosfet_ == 5 ? 7 : 5));
+	*tccr_charge_mosfet_ |=(1<<CS11); // clock / 8
+	sei();
 }
 
 void Capacitor::process()
@@ -59,30 +64,11 @@ void Capacitor::processCharge()
 	// toggle relay
 	bitWrite(*port_charge_,pin_charge_,charge);
 
+
 	// writeChargePWM
-
-
-
-	//setting PWM-Ports to output is needed
-//	// 8-Bit no-inverting PWM on OC1A,OC1B,OC1C & OC3A
-	TCCR1A|=0xA9;
-	TCCR1B|=(1<<CS11);
-
-//	//set Motor Speed
-
-
-//	//turn off interrupts (is needed to write OCR1A usw)
-	cli();
-	OCR1AH|=0x00;
-	OCR1AL |= charge_pwm_;
-//	OCR1BH|=0x00;
-//	OCR1BL|=motorSpeed2;
-//	OCR1CH|=0x00;
-//	OCR1CL|=motorSpeed3;
-//	OCR3AH|=0x00;
-//	OCR3AL|=motorSpeed4;
-	//turn on interrupts
-	sei();
+	*ocr_h_charge_mosfet_ |=0x00;
+	*ocr_l_charge_mosfet_ |= charge_pwm_;
+	sei();	//setting PWM-Ports to output is needed
 }
 
 void Capacitor::processDischarge()

@@ -37,7 +37,7 @@ private:
 
 	 };
 
-	 volatile byte * port_discharge_, *ddr_dicharge_;
+	 volatile byte * port_discharge_, *ddr_discharge_;
 	 volatile byte * port_charge_, *ddr_charge_;
 	 byte pin_discharge_;
 	 byte pin_charge_;

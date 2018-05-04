@@ -41,7 +41,7 @@ void Capacitor::init(volatile byte *port_discharge, volatile byte *ddr_dicharge,
 void Capacitor::initPWM()
 {
 	//	turn off interrupts (is needed to write OCR1A usw)
-//	cli();
+	//	cli();
 	bitSet(*ddr_charge_mosfet_,pin_charge_mosfet_);
 	bitSet(*tccr_charge_mosfet_,0);
 	bitSet(*tccr_charge_mosfet_,(pin_charge_mosfet_ == 5 ? 7 : 5));
@@ -49,35 +49,62 @@ void Capacitor::initPWM()
 	sei();
 }
 
+void Capacitor::processPWM(byte pwm)
+{
+	// writeChargePWM
+	*ocr_h_charge_mosfet_ |=0x00;
+	*ocr_l_charge_mosfet_ |= pwm;
+	sei();	//setting PWM-Ports to output is needed
+}
+
 void Capacitor::process()
 {
-	if(mode_ & InProcess){
+	if(mode_ & InProcess && counter_ && --counter_ == 0){
 		processDischarge();
 		processCharge();
 	}
 	else if(mode_ & Update){
-		processDischarge();
-		processCharge();
+		if(mode_ & Discharge && next_process_ == Nothing){
+
+		}
+		else{ // check charge
+
+		}
 		mode_ &= ~ Update;
 	}
 }
 
 void Capacitor::processCharge()
 {
-	if(mode_ == InProcess){
+	if(mode_ & InProcess){
+		if(mode_ & Charge  && ! mode_ & Discharge){
+			if(next_process_ == SetChargeMosfet){
+				processPWM(0);
+				counter_ = 100;
+				next_process_ = SetCharge;
+			}
+
+			else if(next_process_ == SetCharge){
+				bitSet(*port_charge_,pin_charge_);
+				next_process_ = Nothing;
+			}
+		}
+
+		else if(! mode_ & Charge || mode_ & Discharge){
+			if(next_process_ == ClearCharge){
+				bitClear(*port_charge_,pin_charge_);
+				counter_ = 100;
+				next_process_ = ClearChargeMosfet;
+			}
+			else if(next_process_ == ClearChargeMosfet){
+				processPWM(charge_pwm_);
+				next_process_ = Nothing;
+			}
+		}
 		return;
 	}
-	bool charge = mode_ & Charge && !(mode_ & Discharge);
-
-	// toggle relay
-	bitWrite(*port_charge_,pin_charge_,charge);
-
-
-	// writeChargePWM
-	*ocr_h_charge_mosfet_ |=0x00;
-	*ocr_l_charge_mosfet_ |= charge_pwm_;
-	sei();	//setting PWM-Ports to output is needed
 }
+
 
 void Capacitor::processDischarge()
 {
@@ -89,13 +116,20 @@ void Capacitor::processDischarge()
 void Capacitor::setCharge(bool flag)
 {
 	if(getCharge() != flag){
-		if(flag){
-			mode_ |= Charge;
+		byte *mode;
+		if(next_process_ != Nothing){
+			mode = &mode_;
 		}
 		else{
-			mode_ &= ~ Charge;
+			mode = &next_mode_;
 		}
-		mode_ &= Update;
+		if(flag){
+			*mode |= Charge;
+		}
+		else{
+			*mode &= ~ Charge;
+		}
+		*mode &= Update;
 		process();
 	}
 }

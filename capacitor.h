@@ -11,6 +11,7 @@ public:
 	           volatile byte *ddr_charge_mosfet, byte pin_charge_mosfet,
 	           volatile byte *tccr_charge_mosfet, volatile byte *ocr_h_charge_mosfet, volatile byte *ocr_l_charge_mosfet, Engine *engine);
 	 void initPWM();
+	 void processPWM(byte pwm);
 	 void process();
 	 void processCharge();
 	 void processDischarge();
@@ -63,10 +64,12 @@ private:
 	 volatile byte * ocr_h_charge_mosfet_, *ocr_l_charge_mosfet_;
 
 	 byte mode_;
+	 byte next_mode_;
 	 long long int time_; // time of charge or discharge
 	 int level_;
 	 byte charge_pwm_;
 	 Engine * engine_;
 
+	 int counter_;
 	 Process next_process_;
 };

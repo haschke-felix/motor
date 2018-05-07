@@ -9,25 +9,25 @@ public:
 		ON,
 		OFF,
 		CAPACITOR,
-		InProcess
 	};
 
 	void init(volatile byte *port_motor_vcc, volatile byte * ddr_motor_vcc, byte pin_motor_vcc,
-	          volatile byte * port_motor_pwm, volatile byte * ddr_motor_pwm, byte pin_motor_pwm,
-	          volatile byte *tccr_motor_vcc, volatile byte *ocr_h_motor_pwm, volatile byte *ocr_l_motor_pwm);
+	          volatile byte * port_motor_pwm, volatile byte * ddr_motor_pwm, byte pin_motor_pwm);
 	void process();
 	void initPWM();
 	void processPWM(byte pwm);
 	void setPWM(byte pwm);
-	byte getPWM(){return pwm_;}
+	byte getPWM(){return current_settings_.pwm_;}
 	void setMode(EngineMode mode);
-	EngineMode getMode(){return mode_;}
+	EngineMode getMode(){return current_settings_.mode_;}
 
-	void switchOff();
+	void switchRelayOff();
 	void processSwitchOff();
-	void switchOn();
+	void switchRelayOn();
 	void processSwitchOn();
 	void updatePWM();
+	void setCP1(bool state);
+	void setCP2(bool state);
 
 
 	enum Process : byte{
@@ -40,20 +40,30 @@ public:
 
 private:
 
-	volatile byte *port_motor_pwm_, *ddr_motor_pwm_;
-	byte pin_motor_pwm_;
-	volatile byte *port_motor_vcc_, *ddr_motor_vcc_;
-	byte pin_motor_vcc_;
+	struct PortPin
+	{
+		volatile byte *port_, *ddr_;
+		byte pin_;
+	};
 
-	volatile byte * ddr_mosfet_;
-	byte pin_mosfet_;
-	volatile byte * tccr_motor_vcc_;
-	volatile byte * ocr_h_motor_vcc_, *ocr_l_mosfet_;
+	PortPin motor_pwm_;
+	PortPin motor_vcc_;
 
-	EngineMode mode_;
-	Process next_process_;
+	struct Settings
+	{
+		byte pwm_;
+		EngineMode mode_ = OFF;
+		bool cp1_;
+		bool cp2_;
+		bool in_process_;
+	};
+
+	Settings current_settings_;
+	Settings new_settings_;
+	Settings new_new_settings_; // dont use in_process_
+
+	Process process_;
 	int counter_;
 
-	byte pwm_;
 
 };

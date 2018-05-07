@@ -60,45 +60,45 @@ void Capacitor::processPWM(byte pwm)
 void Capacitor::process()
 {
 	if(mode_ & InProcess && counter_ && --counter_ == 0){
-		processDischarge();
-		processCharge();
+		processDischarge(Update);
+		processCharge(Update);
 	}
-	else if(mode_ & Update){
-		if(mode_ & Discharge && next_process_ == Nothing){
+	//	else if(mode_ & Update && next_process_ == Nothing){
+	//		if(mode_ & Discharge){
+	//			next_process_ =
+	//		}
+	//		else if(mode_ & Charge){ // check charge
 
-		}
-		else{ // check charge
-
-		}
-		mode_ &= ~ Update;
-	}
+	//		}
+	//		mode_ &= ~ Update;
+	//	}
 }
 
-void Capacitor::processCharge()
+void Capacitor::processCharge(byte mode)
 {
 	if(mode_ & InProcess){
 		if(mode_ & Charge  && ! mode_ & Discharge){
-			if(next_process_ == SetChargeMosfet){
+			if(*current_process_ == SetChargeMosfet){
 				processPWM(0);
 				counter_ = 100;
-				next_process_ = SetCharge;
+				*current_process_ = SetCharge;
 			}
 
-			else if(next_process_ == SetCharge){
+			else if(*current_process_ == SetCharge){
 				bitSet(*port_charge_,pin_charge_);
-				next_process_ = Nothing;
+				*current_process_ = Nothing;
 			}
 		}
 
 		else if(! mode_ & Charge || mode_ & Discharge){
-			if(next_process_ == ClearCharge){
+			if(*current_process_ == ClearCharge){
 				bitClear(*port_charge_,pin_charge_);
 				counter_ = 100;
-				next_process_ = ClearChargeMosfet;
+				*current_process_ = ClearChargeMosfet;
 			}
-			else if(next_process_ == ClearChargeMosfet){
+			else if(*current_process_ == ClearChargeMosfet){
 				processPWM(charge_pwm_);
-				next_process_ = Nothing;
+				*current_process_ = Nothing;
 			}
 		}
 		return;
@@ -106,10 +106,26 @@ void Capacitor::processCharge()
 }
 
 
-void Capacitor::processDischarge()
+void Capacitor::processDischarge(byte mode)
 {
-	if(mode_ & Discharge){
-		mode_ |= InProcess;
+	if(mode == Update && current_process_ == &process_array_[0]){
+		if(previous_mode_ & Discharge ^ mode_ & Discharge){
+			if(mode_ & Discharge){
+				mode_ = InProcess;
+				process_array_[0] = ShutdownEngineBattery;
+				process_array_[1] = ClearDischarge;
+			}
+
+		}
+	}
+	else if(mode == 0){
+		if(mode_ & Discharge){
+			mode_ |= InProcess;
+		}
+	}
+
+	else if(mode_ & InProcess){
+
 	}
 }
 
@@ -117,7 +133,7 @@ void Capacitor::setCharge(bool flag)
 {
 	if(getCharge() != flag){
 		byte *mode;
-		if(next_process_ != Nothing){
+		if(*current_process_ != Nothing){
 			mode = &mode_;
 		}
 		else{

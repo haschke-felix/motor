@@ -13,8 +13,8 @@ public:
 	 void initPWM();
 	 void processPWM(byte pwm);
 	 void process();
-	 void processCharge();
-	 void processDischarge();
+	 void processCharge(byte mode  = 0);
+	 void processDischarge(byte mode = 0);
 	 void setCharge(bool flag);
 	 bool getCharge();
 	 void setChargePWM(byte pwm){charge_pwm_ = pwm;}
@@ -63,6 +63,7 @@ private:
 	 volatile byte * tccr_charge_mosfet_;
 	 volatile byte * ocr_h_charge_mosfet_, *ocr_l_charge_mosfet_;
 
+	 byte previous_mode_;
 	 byte mode_;
 	 byte next_mode_;
 	 long long int time_; // time of charge or discharge
@@ -71,5 +72,6 @@ private:
 	 Engine * engine_;
 
 	 int counter_;
-	 Process next_process_;
+	 Process * current_process_;
+	 Process process_array_[10];
 };

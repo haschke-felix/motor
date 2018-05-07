@@ -20,15 +20,16 @@ public:
 	byte getPWM(){return current_settings_.pwm_;}
 	void setMode(EngineMode mode);
 	EngineMode getMode(){return current_settings_.mode_;}
+	void setCP1(bool state);
+	void setCP2(bool state);
 
+private:
 	void switchRelayOff();
 	void processSwitchOff();
 	void switchRelayOn();
 	void processSwitchOn();
 	void updatePWM();
-	void setCP1(bool state);
-	void setCP2(bool state);
-
+public:
 
 	enum Process : byte{
 		setRelay,
@@ -55,8 +56,8 @@ private:
 		EngineMode mode_ = OFF;
 		bool cp1_;
 		bool cp2_;
-		bool in_process_;
 	};
+	bool in_process_;
 
 	Settings current_settings_;
 	Settings new_settings_;

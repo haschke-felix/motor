@@ -51,10 +51,10 @@ int main(void)
 //	ADCSRA |= _BV(ADEN);
 //	bitSet(ADMUX,REFS0);
 
-	bitSet(DDRB,1);
-	bitSet(DDRD,7);
-	bitClear(PORTB,1);
-	bitClear(PORTD,7);
+//	bitSet(DDRB,1);
+//	bitSet(DDRD,7);
+//	bitClear(PORTB,1);
+//	bitClear(PORTD,7);
 
 	sei();
 

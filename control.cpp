@@ -6,7 +6,7 @@ Control::Control()
 }
 
 void Control::init(){
-	   engine_.init(&PORTD,&DDRD,0,&PORTB,&DDRB,1);
+	   engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
 	//	cp1_.init(&PORTA,&DDRA,1,&PORTA,&DDRA,3,&DDRB,5,&TCCR1A,&OCR1AH,&OCR1AL,&engine_);
 	//	cp2_.init(&PORTA,&DDRA,2,&PORTA,&DDRA,4,&DDRB,6,&TCCR1A,&OCR1BH,&OCR1BL,&engine_);
 		initADC();

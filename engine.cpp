@@ -27,12 +27,15 @@ void Engine::init(volatile byte *port_motor_vcc, volatile byte *ddr_motor_vcc, b
 
 
 	// only test
-	bitClear(*motor_vcc_.port_,motor_vcc_.pin_);
-	current_settings_.mode_ = ON;
-	processPWM(55);
-
+	//	bitClear(*motor_vcc_.port_,motor_vcc_.pin_);
+	//	current_settings_.mode_ = ON;
 
 	initPWM();
+	//	processPWM(55);
+	//	bitSet(DDRC,4);
+	//	bitSet(PORTC,4);
+	//	   while(true);
+
 	processPWM(0);
 }
 
@@ -46,10 +49,10 @@ void Engine::process()
 			startProcess();
 		}
 		else{
-			if(counter_ && --counter_ == 0)
-			{
-				processing();
-			}
+			//			if(counter_ && --counter_ == 0)
+			//			{
+			processing();
+			//			}
 		}
 
 	}
@@ -64,12 +67,8 @@ void Engine::startProcess()
 		{
 			processes_[process_counter++] = disableMosfet;
 			processes_[process_counter++] = disableCapacitors;
-			processes_[process_counter++] = enableRelay;
 		}
-		else // mode == OFF || ON
-		{
-			processes_[process_counter++] = enableRelay;
-		}
+		processes_[process_counter++] = enableRelay;
 		processes_[process_counter++] = enableMosfet;
 	}
 
@@ -138,14 +137,17 @@ void Engine::processing()
 		bitSet(*cp2_.port_,cp2_.pin_);
 	}
 	else if(*process_ptr_ == END){
-		while(process_ptr_-- != &process_ptr_[0]){
-			*process_ptr_ = END;
+		for(byte i = 0; i < 8; i++){
+			processes_[i] = END;
 		}
+		process_ptr_ = &processes_[0];
 		if(new_new_used_){
 
 		}
 		else{
 			in_process_ = false;
+			bitSet(DDRC,4);
+			bitToggle(PORTC,4);
 		}
 		return;
 	}
@@ -171,6 +173,8 @@ void Engine::setPWM(byte pwm)
 {
 
 	if(!in_process_){
+		//		bitSet(DDRC,4);
+		//		bitSet(PORTC,4);
 		current_settings_.pwm_ = pwm;
 		if(current_settings_.mode_ == ON || current_settings_.mode_ == CAPACITOR){
 			processPWM(current_settings_.pwm_);
@@ -183,11 +187,13 @@ void Engine::setPWM(byte pwm)
 
 void Engine::setMode(Engine::EngineMode mode)
 {
+
 	if(in_process_){
 		new_new_used_ = true;
 		new_new_settings_.mode_ = mode;
 	}
 	else{
+
 		in_process_ = true;
 		new_settings_.mode_ = new_new_settings_.mode_ = mode;
 		new_settings_.pwm_ = new_new_settings_.pwm_ = current_settings_.pwm_;

@@ -11,6 +11,7 @@ void Control::init(){
 	//	cp2_.init(&PORTA,&DDRA,2,&PORTA,&DDRA,4,&DDRB,6,&TCCR1A,&OCR1BH,&OCR1BL,&engine_);
 		initADC();
 		engine_.setPWM(55);
+
 		engine_.setMode(Engine::ON);
 }
 

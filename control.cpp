@@ -10,6 +10,8 @@ void Control::init(){
 	//	cp1_.init(&PORTA,&DDRA,1,&PORTA,&DDRA,3,&DDRB,5,&TCCR1A,&OCR1AH,&OCR1AL,&engine_);
 	//	cp2_.init(&PORTA,&DDRA,2,&PORTA,&DDRA,4,&DDRB,6,&TCCR1A,&OCR1BH,&OCR1BL,&engine_);
 		initADC();
+		engine_.setPWM(55);
+		engine_.setMode(Engine::ON);
 }
 
 void Control::process()
@@ -19,7 +21,7 @@ void Control::process()
 	cp2_.process();
 	count_++;
 	if(count_ == 100){
-		engine_.setPWM(getSpeedPedal());
+//		engine_.setPWM(getSpeedPedal());
 		count_ = 0;
 	}
 }

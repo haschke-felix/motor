@@ -24,12 +24,10 @@ public:
 	void setCP2(bool state);
 
 private:
-	void switchRelayOff();
-	void processSwitchOff();
-	void switchRelayOn();
-	void processSwitchOn();
+	void startProcess();
+	void processing();
+
 	void updatePWM();
-public:
 
 	enum Process : byte{
 		START,
@@ -43,8 +41,6 @@ public:
 		END,
 	};
 
-private:
-
 	struct PortPin
 	{
 		volatile byte *port_, *ddr_;
@@ -53,15 +49,17 @@ private:
 
 	PortPin motor_pwm_;
 	PortPin motor_vcc_;
+	PortPin cp1_;
+	PortPin cp2_;
 
 	struct Settings
 	{
-		byte pwm_;
+		byte pwm_ = 0;
 		EngineMode mode_ = OFF;
-		bool cp1_;
-		bool cp2_;
+		bool cp1_ = false;
+		bool cp2_ = false;
 	};
-	bool in_process_;
+	bool in_process_ = false;
 	bool new_new_used_;
 
 	Settings current_settings_;
@@ -70,7 +68,7 @@ private:
 
 	Process *process_ptr_;
 	Process processes_[8];
-	int counter_;
+	int counter_ = 1;
 
 
 };

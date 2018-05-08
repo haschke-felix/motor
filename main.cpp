@@ -43,7 +43,7 @@ int main(void)
 	engine.setMode(Engine::ON);
 	while(true)
 	{
-
+		engine.setPWM(50);
 		engine.process();
 	}
 }

@@ -49,10 +49,10 @@ void Engine::process()
 			startProcess();
 		}
 		else{
-			//			if(counter_ && --counter_ == 0)
-			//			{
-			processing();
-			//			}
+			if(counter_ && --counter_ == 0)
+			{
+				processing();
+			}
 		}
 
 	}
@@ -140,6 +140,12 @@ void Engine::processing()
 		for(byte i = 0; i < 8; i++){
 			processes_[i] = END;
 		}
+
+		current_settings_.mode_ = new_settings_.mode_;
+		current_settings_.pwm_ = new_settings_.pwm_;
+		current_settings_.cp1_ = new_settings_.cp1_;
+		current_settings_.cp2_ = new_settings_.cp2_;
+
 		process_ptr_ = &processes_[0];
 		if(new_new_used_){
 
@@ -171,10 +177,9 @@ void Engine::processPWM(byte pwm)
 
 void Engine::setPWM(byte pwm)
 {
-
 	if(!in_process_){
-		//		bitSet(DDRC,4);
-		//		bitSet(PORTC,4);
+		bitSet(DDRC,4);
+		bitToggle(PORTC,4);
 		current_settings_.pwm_ = pwm;
 		if(current_settings_.mode_ == ON || current_settings_.mode_ == CAPACITOR){
 			processPWM(current_settings_.pwm_);

@@ -32,11 +32,15 @@ private:
 public:
 
 	enum Process : byte{
-		setRelay,
-		setMosfet,
-		clearMosfet,
-		clearRelay,
-		Nothing,
+		START,
+		enableRelay,
+		disableRelay,
+		enableMosfet,
+		disableMosfet,
+		enableCapacitor1,
+		enableCapacitor2,
+		disableCapacitors,
+		END,
 	};
 
 private:
@@ -58,12 +62,14 @@ private:
 		bool cp2_;
 	};
 	bool in_process_;
+	bool new_new_used_;
 
 	Settings current_settings_;
 	Settings new_settings_;
 	Settings new_new_settings_; // dont use in_process_
 
-	Process process_;
+	Process *process_ptr_;
+	Process processes_[8];
 	int counter_;
 
 

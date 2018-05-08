@@ -38,10 +38,67 @@ void Engine::init(volatile byte *port_motor_vcc, volatile byte *ddr_motor_vcc, b
 
 void Engine::process()
 {
-	if(in_process_){
-		if(counter_ && --counter_ == 0){
+	if(in_process_)
+	{
+		if(*process_ptr_ == START)
+		{
+			byte process_counter = 1;
+			if(new_settings_.mode_ == ON)
+			{
+				if(current_settings_.mode_ ==  CAPACITOR)
+				{
+					processes_[process_counter++] = disableMosfet;
+					processes_[process_counter++] = disableCapacitors;
+					processes_[process_counter++] = enableRelay;
+				}
+				else // mode == OFF || ON
+				{
+					processes_[process_counter++] = enableRelay;
+				}
+				processes_[process_counter++] = enableMosfet;
+			}
 
+			else if(new_settings_.mode_ == OFF)
+			{
+				if(current_settings_.mode_ == OFF){
+					processes_[0] == END;
+					//					finished();
+					return;
+				}
+				processes_[process_counter++] = disableMosfet;
+				if(current_settings_.mode_ == CAPACITOR){
+					processes_[process_counter++] = disableCapacitors;
+				}
+				processes_[process_counter++] = disableRelay;
+			}
+			else if(new_settings_.mode_ == CAPACITOR)
+			{
+				if(current_settings_.mode_ == CAPACITOR)
+				{
+					// check currently setted caps
+				}
+				else{
+					processes_[process_counter++] = disableMosfet;
+					if(new_settings_.mode_ == ON){
+						processes_[process_counter++] = disableRelay;
+					}
+					if(new_settings_.cp1_)
+					{
+						processes_[process_counter++] = enableCapacitor1;
+					}
+					if(new_settings_.cp2_)
+					{
+						processes_[process_counter++] = enableCapacitor2;
+					}
+					processes_[process_counter++] = enableMosfet;
+				}
+			}
+			processes_[process_counter++] = END;
 		}
+	}
+	if(counter_ && --counter_ == 0)
+	{
+
 	}
 }
 
@@ -75,69 +132,61 @@ void Engine::setPWM(byte pwm)
 
 void Engine::setMode(Engine::EngineMode mode)
 {
-
-	Settings * settins_ptr = (in_process_ ? &new_new_settings_ : &new_settings_);
-	settins_ptr->mode_ = mode;
-
 	if(in_process_){
-		byte old_pwm = (in_process_ ? new_settings_.pwm_ : current_settings_.pwm_);
-		if(settins_ptr->mode_ == CAPACITOR){
-			settins_ptr->pwm_ = old_pwm;
-			switchRelayOff();
-		}
-		else if(settins_ptr->mode_ == ON){
-			settins_ptr->pwm_ = old_pwm;
-			switchRelayOn();
-		}
-		else if(settins_ptr->mode_ == OFF){
-			settins_ptr->pwm_ = old_pwm;
-			switchRelayOff();
-		}
+		new_new_used_ = true;
+		new_new_settings_.mode_ = mode;
+	}
+	else{
+		in_process_ = true;
+		new_settings_.mode_ = new_new_settings_.mode_ = mode;
+		new_settings_.pwm_ = new_new_settings_.pwm_ = current_settings_.pwm_;
+		processes_[0] = START;
+		process_ptr_ = &processes_[0];
 	}
 }
 
 void Engine::switchRelayOff()
 {
-//	if(mode_ != OFF && process_ == Nothing){
-//		mode_ = OFF;
-//		process_ = clearMosfet;
-//		counter_ = 100;
-//	}
+	//	if(mode_ != OFF && process_ == Nothing){
+	//		mode_ = OFF;
+	//		process_ = clearMosfet;
+	//		counter_ = 100;
+	//	}
 }
 
 void Engine::processSwitchOff()
 {
-//	if(process_ == clearMosfet){
-//		processPWM(0);
-//		process_ = clearRelay;
-//		counter_ = 100;
-//	}
-//	else if(process_ == clearRelay){
-//		bitSet(*port_motor_vcc_,pin_motor_vcc_);
-//		process_ = Nothing;
-//	}
+	//	if(process_ == clearMosfet){
+	//		processPWM(0);
+	//		process_ = clearRelay;
+	//		counter_ = 100;
+	//	}
+	//	else if(process_ == clearRelay){
+	//		bitSet(*port_motor_vcc_,pin_motor_vcc_);
+	//		process_ = Nothing;
+	//	}
 }
 
 void Engine::switchRelayOn()
 {
-//	if(mode_ != ON && process_ == Nothing){
-//		mode_ = ON;
-//		process_ = setRelay;
-//		counter_ = 100;
-//	}
+	//	if(mode_ != ON && process_ == Nothing){
+	//		mode_ = ON;
+	//		process_ = setRelay;
+	//		counter_ = 100;
+	//	}
 }
 
 void Engine::processSwitchOn()
 {
-//	if(process_ == setRelay){
-//		bitClear(*port_motor_vcc_,pin_motor_vcc_);
-//		process_ = setMosfet;
-//		counter_ = 100;
-//	}
-//	else if(process_ == setMosfet){
-//		processPWM(pwm_);
-//		process_ = Nothing;
-//	}
+	//	if(process_ == setRelay){
+	//		bitClear(*port_motor_vcc_,pin_motor_vcc_);
+	//		process_ = setMosfet;
+	//		counter_ = 100;
+	//	}
+	//	else if(process_ == setMosfet){
+	//		processPWM(pwm_);
+	//		process_ = Nothing;
+	//	}
 }
 
 void Engine::setCP1(bool state)

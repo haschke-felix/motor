@@ -148,7 +148,11 @@ void Engine::processing()
 
 		process_ptr_ = &processes_[0];
 		if(new_new_used_){
-
+			new_settings_.mode_ = new_new_settings_.mode_;
+			new_settings_.pwm_ = new_new_settings_.pwm_;
+			new_settings_.cp1_ = new_new_settings_.cp1_;
+			new_settings_.cp2_ = new_new_settings_.cp2_;
+			startProcess();
 		}
 		else{
 			in_process_ = false;
@@ -157,7 +161,7 @@ void Engine::processing()
 		}
 		return;
 	}
-	counter_ = 5;
+	counter_ = 10;
 	++process_ptr_;
 }
 
@@ -178,8 +182,6 @@ void Engine::processPWM(byte pwm)
 void Engine::setPWM(byte pwm)
 {
 	if(!in_process_){
-		bitSet(DDRC,4);
-		bitToggle(PORTC,4);
 		current_settings_.pwm_ = pwm;
 		if(current_settings_.mode_ == ON || current_settings_.mode_ == CAPACITOR){
 			processPWM(current_settings_.pwm_);
@@ -187,6 +189,12 @@ void Engine::setPWM(byte pwm)
 	}
 	else{
 		new_new_settings_.pwm_ = pwm;
+		if(!new_new_used_){
+			new_new_settings_.mode_ = new_settings_.mode_;
+			new_new_settings_.cp1_ = new_settings_.cp1_;
+			new_new_settings_.cp2_ = new_settings_.cp2_;
+			new_new_used_ = true;
+		}
 	}
 }
 
@@ -194,8 +202,13 @@ void Engine::setMode(Engine::EngineMode mode)
 {
 
 	if(in_process_){
-		new_new_used_ = true;
 		new_new_settings_.mode_ = mode;
+		if(!new_new_used_){
+			new_new_used_ = true;
+			new_new_settings_.mode_ = new_settings_.mode_;
+			new_new_settings_.cp1_ = new_settings_.cp1_;
+			new_new_settings_.cp2_ = new_settings_.cp2_;
+		}
 	}
 	else{
 

@@ -10,19 +10,24 @@ void Control::init(){
 	//	cp1_.init(&PORTA,&DDRA,1,&PORTA,&DDRA,3,&DDRB,5,&TCCR1A,&OCR1AH,&OCR1AL,&engine_);
 	//	cp2_.init(&PORTA,&DDRA,2,&PORTA,&DDRA,4,&DDRB,6,&TCCR1A,&OCR1BH,&OCR1BL,&engine_);
 		initADC();
-		engine_.setPWM(55);
+//		engine_.setPWM(55);
 
+//		engine_.setMode(Engine::ON);
+//		engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
+		engine_.setPWM(0xF0);
 		engine_.setMode(Engine::ON);
 }
 
 void Control::process()
 {
+//	engine_.setPWM(50);
 	engine_.process();
-	cp1_.process();
-	cp2_.process();
+//	engine_.process();
+//	cp1_.process();
+//	cp2_.process();
 	count_++;
 	if(count_ == 100){
-//		engine_.setPWM(getSpeedPedal());
+		engine_.setPWM(getSpeedPedal());
 		count_ = 0;
 	}
 }

@@ -14,8 +14,8 @@ volatile bool evaluate;
 
 //   DataManager manager;
 //DataManager manager();
-Engine engine;
-//Control control;
+//Engine engine;
+Control control;
 
 int main(void)
 {
@@ -34,16 +34,13 @@ int main(void)
 
 	sei();
 
-//	control.init();
+	control.init();
 #endif
 //	bitSet(DDRC,4);
 //	bitSet(PORTC,4);
-	engine.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
-	engine.setPWM(0xF0);
-	engine.setMode(Engine::ON);
+
 	while(true)
 	{
-		engine.setPWM(50);
-		engine.process();
+		control.process();
 	}
 }

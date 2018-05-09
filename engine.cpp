@@ -6,7 +6,9 @@ Engine::Engine()
 }
 
 void Engine::init(volatile byte *port_motor_vcc, volatile byte *ddr_motor_vcc, byte pin_motor_vcc,
-                  volatile byte *port_motor_pwm, volatile byte *ddr_motor_pwm, byte pin_motor_pwm)
+                  volatile byte *port_motor_pwm, volatile byte *ddr_motor_pwm, byte pin_motor_pwm,
+                  volatile byte *port_cp1, volatile byte *ddr_cp1, byte pin_cp1,
+                  volatile byte *port_cp2, volatile byte *ddr_cp2, byte pin_cp2)
 {
 	motor_pwm_.port_  = port_motor_pwm;
 	motor_pwm_.ddr_ = ddr_motor_pwm;
@@ -17,6 +19,14 @@ void Engine::init(volatile byte *port_motor_vcc, volatile byte *ddr_motor_vcc, b
 	motor_vcc_.ddr_ = ddr_motor_vcc;
 	motor_vcc_.pin_ = pin_motor_vcc;
 
+	cp1_.port_ = port_cp1;
+	cp1_.ddr_ = ddr_cp1;
+	cp1_.pin_ = pin_cp1;
+
+	cp2_.port_ = port_cp2;
+	cp2_.ddr_ = ddr_cp2;
+	cp2_.pin_ = pin_cp2;
+
 	// init mosfet pins
 	bitSet(*motor_pwm_.port_,motor_pwm_.pin_);
 	bitSet(*motor_pwm_.ddr_,motor_pwm_.pin_);
@@ -25,6 +35,12 @@ void Engine::init(volatile byte *port_motor_vcc, volatile byte *ddr_motor_vcc, b
 	bitSet(*motor_vcc_.port_,motor_vcc_.pin_);
 	bitSet(*motor_vcc_.ddr_,motor_vcc_.pin_);
 
+	// init Capacitors Pins
+	bitSet(*cp1_.port_,cp1_.pin_);
+	bitSet(*cp1_.ddr_,cp1_.pin_);
+
+	bitSet(*cp2_.port_,cp2_.pin_);
+	bitSet(*cp2_.ddr_,cp2_.pin_);
 
 	// only test
 	//	bitClear(*motor_vcc_.port_,motor_vcc_.pin_);
@@ -204,10 +220,10 @@ void Engine::setMode(Engine::EngineMode mode)
 	if(in_process_){
 		new_new_settings_.mode_ = mode;
 		if(!new_new_used_){
-			new_new_used_ = true;
 			new_new_settings_.mode_ = new_settings_.mode_;
 			new_new_settings_.cp1_ = new_settings_.cp1_;
 			new_new_settings_.cp2_ = new_settings_.cp2_;
+			new_new_used_ = true;
 		}
 	}
 	else{

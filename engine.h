@@ -12,7 +12,9 @@ public:
 	};
 
 	void init(volatile byte *port_motor_vcc, volatile byte * ddr_motor_vcc, byte pin_motor_vcc,
-	          volatile byte * port_motor_pwm, volatile byte * ddr_motor_pwm, byte pin_motor_pwm);
+	          volatile byte * port_motor_pwm, volatile byte * ddr_motor_pwm, byte pin_motor_pwm,
+	          volatile byte *port_cp1, volatile byte *ddr_cp1, byte pin_cp1,
+	          volatile byte *port_cp2, volatile byte *ddr_cp2, byte pin_cp2);
 	void process();
 	void initPWM();
 	void processPWM(byte pwm);

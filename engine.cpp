@@ -42,15 +42,7 @@ void Engine::init(volatile byte *port_motor_vcc, volatile byte *ddr_motor_vcc, b
 	bitSet(*cp2_.port_,cp2_.pin_);
 	bitSet(*cp2_.ddr_,cp2_.pin_);
 
-	// only test
-	//	bitClear(*motor_vcc_.port_,motor_vcc_.pin_);
-	//	current_settings_.mode_ = ON;
-
 	initPWM();
-	//	processPWM(55);
-	//	bitSet(DDRC,4);
-	//	bitSet(PORTC,4);
-	//	   while(true);
 
 	processPWM(0);
 }
@@ -68,9 +60,10 @@ void Engine::process()
 			if(counter_ && --counter_ == 0)
 			{
 				processing();
+				if(processes_[2] == disableRelay){
+				}
 			}
 		}
-
 	}
 }
 
@@ -90,16 +83,13 @@ void Engine::startProcess()
 
 	else if(new_settings_.mode_ == OFF)
 	{
-		if(current_settings_.mode_ == OFF){
-			processes_[0] == END;
-			//					finished();
-			return;
+		if(current_settings_.mode_ != OFF){
+			processes_[process_counter++] = disableMosfet;
+			if(current_settings_.mode_ == CAPACITOR){
+				processes_[process_counter++] = disableCapacitors;
+			}
+			processes_[process_counter++] = disableRelay;
 		}
-		processes_[process_counter++] = disableMosfet;
-		if(current_settings_.mode_ == CAPACITOR){
-			processes_[process_counter++] = disableCapacitors;
-		}
-		processes_[process_counter++] = disableRelay;
 	}
 	else if(new_settings_.mode_ == CAPACITOR)
 	{
@@ -125,11 +115,11 @@ void Engine::startProcess()
 	}
 	processes_[process_counter++] = END;
 	process_ptr_ = &processes_[1];
+	counter_ = 10;
 }
 
 void Engine::processing()
 {
-
 	if(*process_ptr_ == enableRelay){
 		bitClear(*motor_vcc_.port_,motor_vcc_.pin_);
 	}
@@ -169,11 +159,12 @@ void Engine::processing()
 			new_settings_.cp1_ = new_new_settings_.cp1_;
 			new_settings_.cp2_ = new_new_settings_.cp2_;
 			startProcess();
+			in_process_ = true;
+			new_new_used_ = false;
+			return;
 		}
 		else{
 			in_process_ = false;
-			bitSet(DDRC,4);
-			bitToggle(PORTC,4);
 		}
 		return;
 	}
@@ -220,17 +211,15 @@ void Engine::setMode(Engine::EngineMode mode)
 	if(in_process_){
 		new_new_settings_.mode_ = mode;
 		if(!new_new_used_){
-			new_new_settings_.mode_ = new_settings_.mode_;
 			new_new_settings_.cp1_ = new_settings_.cp1_;
 			new_new_settings_.cp2_ = new_settings_.cp2_;
 			new_new_used_ = true;
 		}
 	}
 	else{
-
 		in_process_ = true;
-		new_settings_.mode_ = new_new_settings_.mode_ = mode;
-		new_settings_.pwm_ = new_new_settings_.pwm_ = current_settings_.pwm_;
+		new_settings_.mode_ = mode;
+		new_settings_.pwm_ = current_settings_.pwm_;
 		processes_[0] = START;
 		process_ptr_ = &processes_[0];
 	}

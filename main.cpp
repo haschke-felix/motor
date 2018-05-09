@@ -21,7 +21,7 @@ int main(void)
 {
 	//	foo_.init();
 	//	initSPI(&receive_buffer[0],&send_buffer[0],&evaluate);  //Initialize slave SPI
-	//	manager.init(&send_buffer[0],&receive_buffer[0],&evaluate);
+//		manager.init(&send_buffer[0],&receive_buffer[0],&evaluate);
 #if 1
 
 //	ADCSRA |= _BV(ADEN);

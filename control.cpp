@@ -6,26 +6,26 @@ Control::Control()
 }
 
 void Control::init(){
-	engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1,&PORTD,&DDRD,0,&PORTD,&DDRD,1);
-	//	cp1_.init(&PORTA,&DDRA,1,&PORTA,&DDRA,3,&DDRB,5,&TCCR1A,&OCR1AH,&OCR1AL,&engine_);
-	//	cp2_.init(&PORTA,&DDRA,2,&PORTA,&DDRA,4,&DDRB,6,&TCCR1A,&OCR1BH,&OCR1BL,&engine_);
+	engine_.init(PortPins::set(&PORTD,&DDRD,7),PortPins::set(&PORTB,&DDRB,1),PortPins::set(&PORTD,&DDRD,0),PortPins::set(&PORTD,&DDRD,1));
+	   cp1_.init(PortPins::set(&PORTD,&DDRD,2),PortPins::set(&PORTD,&DDRD,5),&OCR0A,&engine_);
+		cp2_.init(PortPins::set(&PORTD,&DDRD,4),PortPins::set(&PORTD,&DDRD,6),&OCR0B,&engine_);
+
 	initADC();
 	//		engine_.setPWM(55);
 
 	//		engine_.setMode(Engine::ON);
 	//		engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
 	engine_.setPWM(0xF0);
-	engine_.setMode(Engine::OFF);
+//	engine_.setMode(Engine::OFF);
 	engine_.setMode(Engine::ON);
 }
 
 void Control::process()
 {
-	//	engine_.setPWM(50);
 	engine_.process();
-	//	engine_.process();
-	//	cp1_.process();
-	//	cp2_.process();
+	cp1_.process();
+	cp2_.process();
+
 	count_++;
 	if(count_ == 100){
 		engine_.setPWM(getSpeedPedal());

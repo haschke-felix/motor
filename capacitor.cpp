@@ -4,57 +4,41 @@ Capacitor::Capacitor()
 
 }
 
-void Capacitor::init(volatile byte *port_discharge, volatile byte *ddr_dicharge, byte pin_discharge,
-                     volatile byte *port_charge, volatile byte *ddr_charge, byte pin_charge,
-                     volatile byte *ddr_charge_mosfet, byte pin_charge_mosfet, volatile byte *tccr_charge_mosfet,
-                     volatile byte *ocr_h_charge_mosfet, volatile byte *ocr_l_charge_mosfet, Engine * engine)
+void Capacitor::init(PortPin charge, PortPin charge_mosfet, volatile byte *pwm_pin, Engine * engine)
 {
 	engine_ = engine;
 
-	// discharge pin declaration
-	port_discharge_ = port_discharge;
-	ddr_discharge_ = ddr_dicharge;
-	pin_discharge_ = pin_discharge;
+	charge_ = charge;
+	charge_mosfet_ = charge_mosfet;
+	pwm_pin_ = pwm_pin;
 
-	// charge pin declaration
-	port_charge_ = port_charge;
-	ddr_charge_ = ddr_charge;
-	pin_charge_ = pin_charge;
-
-	// charge mosfet pwm pin declaration
-	ddr_charge_mosfet_ = ddr_charge_mosfet;
-	pin_charge_mosfet_ = pin_charge_mosfet;
-	tccr_charge_mosfet_ = tccr_charge_mosfet;
-	ocr_h_charge_mosfet_ = ocr_h_charge_mosfet;
-	ocr_l_charge_mosfet_ = ocr_l_charge_mosfet;
-
-	// init discharge pin: disable(low active) and set as Ouput)
-	bitSet(*port_discharge_,pin_discharge_);
-	bitSet(*ddr_discharge_,pin_discharge_);
 	// init charge pin: disable(low active) and set as Ouput)
-	bitSet(*port_charge_,pin_charge_);
-	bitSet(*ddr_charge_,pin_charge_);
+	bitSet(*charge_.port,charge_.pin);
+	bitSet(*charge_.ddr,charge_.pin);
+
+	bitSet(*charge_mosfet_.ddr,charge_mosfet_.pin);
 
 	initPWM();
+	processPWM(50);
 }
 
 void Capacitor::initPWM()
 {
-	//	turn off interrupts (is needed to write OCR1A usw)
-	//	cli();
-	bitSet(*ddr_charge_mosfet_,pin_charge_mosfet_);
-	bitSet(*tccr_charge_mosfet_,0);
-	bitSet(*tccr_charge_mosfet_,(pin_charge_mosfet_ == 5 ? 7 : 5));
-	*tccr_charge_mosfet_ |=(1<<CS11); // clock / 8
+	TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
+	// set none-inverting mode
+
+	TCCR0A |= (1 << WGM01) | (1 << WGM00);
+	// set fast PWM Mode
+
+	TCCR0B |= (1 << CS01);
+	*pwm_pin_ = 0xFF; // out at OC1A
 	sei();
 }
 
 void Capacitor::processPWM(byte pwm)
 {
 	// writeChargePWM
-	*ocr_h_charge_mosfet_ |=0x00;
-	*ocr_l_charge_mosfet_ |= pwm;
-	sei();	//setting PWM-Ports to output is needed
+	*pwm_pin_ = 0xFF - pwm;
 }
 
 void Capacitor::process()
@@ -85,14 +69,14 @@ void Capacitor::processCharge(byte mode)
 			}
 
 			else if(*current_process_ == SetCharge){
-				bitSet(*port_charge_,pin_charge_);
+				bitSet(*charge_.port,charge_.pin);
 				*current_process_ = Nothing;
 			}
 		}
 
 		else if(! mode_ & Charge || mode_ & Discharge){
 			if(*current_process_ == ClearCharge){
-				bitClear(*port_charge_,pin_charge_);
+				bitClear(*charge_.port,charge_.pin);
 				counter_ = 100;
 				*current_process_ = ClearChargeMosfet;
 			}

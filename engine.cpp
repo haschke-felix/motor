@@ -5,45 +5,31 @@ Engine::Engine()
 
 }
 
-void Engine::init(volatile byte *port_motor_vcc, volatile byte *ddr_motor_vcc, byte pin_motor_vcc,
-                  volatile byte *port_motor_pwm, volatile byte *ddr_motor_pwm, byte pin_motor_pwm,
-                  volatile byte *port_cp1, volatile byte *ddr_cp1, byte pin_cp1,
-                  volatile byte *port_cp2, volatile byte *ddr_cp2, byte pin_cp2)
+void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2)
 {
-	motor_pwm_.port_  = port_motor_pwm;
-	motor_pwm_.ddr_ = ddr_motor_pwm;
-	motor_pwm_.pin_ = pin_motor_pwm;
-
 	// charge mosfet pwm pin declaration
-	motor_vcc_.port_ = port_motor_vcc;
-	motor_vcc_.ddr_ = ddr_motor_vcc;
-	motor_vcc_.pin_ = pin_motor_vcc;
+	motor_vcc_ = motor_vcc;
+	motor_pwm_ = motor_pwm;
 
-	cp1_.port_ = port_cp1;
-	cp1_.ddr_ = ddr_cp1;
-	cp1_.pin_ = pin_cp1;
-
-	cp2_.port_ = port_cp2;
-	cp2_.ddr_ = ddr_cp2;
-	cp2_.pin_ = pin_cp2;
+	cp1_ = cp1;
+	cp2_ = cp2;
 
 	// init mosfet pins
-	bitSet(*motor_pwm_.port_,motor_pwm_.pin_);
-	bitSet(*motor_pwm_.ddr_,motor_pwm_.pin_);
+	bitSet(*motor_pwm_.port,motor_pwm_.pin);
+	bitSet(*motor_pwm_.ddr,motor_pwm_.pin);
 
 	// init relay pins
-	bitSet(*motor_vcc_.port_,motor_vcc_.pin_);
-	bitSet(*motor_vcc_.ddr_,motor_vcc_.pin_);
+	bitSet(*motor_vcc_.port,motor_vcc_.pin);
+	bitSet(*motor_vcc_.ddr,motor_vcc_.pin);
 
 	// init Capacitors Pins
-	bitSet(*cp1_.port_,cp1_.pin_);
-	bitSet(*cp1_.ddr_,cp1_.pin_);
+	bitSet(*cp1_.port,cp1_.pin);
+	bitSet(*cp1_.ddr,cp1_.pin);
 
-	bitSet(*cp2_.port_,cp2_.pin_);
-	bitSet(*cp2_.ddr_,cp2_.pin_);
+	bitSet(*cp2_.port,cp2_.pin);
+	bitSet(*cp2_.ddr,cp2_.pin);
 
 	initPWM();
-
 	processPWM(0);
 }
 
@@ -60,8 +46,6 @@ void Engine::process()
 			if(counter_ && --counter_ == 0)
 			{
 				processing();
-				if(processes_[2] == disableRelay){
-				}
 			}
 		}
 	}
@@ -121,10 +105,10 @@ void Engine::startProcess()
 void Engine::processing()
 {
 	if(*process_ptr_ == enableRelay){
-		bitClear(*motor_vcc_.port_,motor_vcc_.pin_);
+		bitClear(*motor_vcc_.port,motor_vcc_.pin);
 	}
 	else if(*process_ptr_ == disableRelay){
-		bitSet(*motor_vcc_.port_,motor_vcc_.pin_);
+		bitSet(*motor_vcc_.port,motor_vcc_.pin);
 	}
 	else if(*process_ptr_ ==  enableMosfet){
 		processPWM(new_settings_.pwm_);
@@ -133,14 +117,14 @@ void Engine::processing()
 		processPWM(0);
 	}
 	else if(*process_ptr_ == enableCapacitor1){
-		bitClear(*cp1_.port_,cp1_.pin_);
+		bitClear(*cp1_.port,cp1_.pin);
 	}
 	else if(*process_ptr_ == enableCapacitor2){
-		bitClear(*cp2_.port_,cp2_.pin_);
+		bitClear(*cp2_.port,cp2_.pin);
 	}
 	else if(*process_ptr_ == disableCapacitors){
-		bitSet(*cp1_.port_,cp1_.pin_);
-		bitSet(*cp2_.port_,cp2_.pin_);
+		bitSet(*cp1_.port,cp1_.pin);
+		bitSet(*cp2_.port,cp2_.pin);
 	}
 	else if(*process_ptr_ == END){
 		for(byte i = 0; i < 8; i++){
@@ -177,7 +161,7 @@ void Engine::initPWM()
 	TCCR1A|=(1<<WGM10);
 	TCCR1A |= (1 << COM1A1)|(1 << COM1B1)/*|(1 << COM1C1)*/;
 	TCCR1B |= (1 << CS10)|(1 << CS10);
-	OCR1A = 0; // out at OC1A
+	OCR1A = 0xFF; // out at OC1A
 	sei();
 }
 
@@ -205,6 +189,17 @@ void Engine::setPWM(byte pwm)
 	}
 }
 
+byte Engine::getPWM()
+{
+	if(in_process_){
+		if(new_new_used_){
+			return new_new_settings_.pwm_;
+		}
+		return new_settings_.pwm_;
+	}
+	return current_settings_.pwm_;
+}
+
 void Engine::setMode(Engine::EngineMode mode)
 {
 
@@ -223,6 +218,17 @@ void Engine::setMode(Engine::EngineMode mode)
 		processes_[0] = START;
 		process_ptr_ = &processes_[0];
 	}
+}
+
+Engine::EngineMode Engine::getMode()
+{
+	if(in_process_){
+		if(new_new_used_){
+			return new_new_settings_.mode_;
+		}
+		return new_settings_.mode_;
+	}
+	return current_settings_.mode_;
 }
 
 

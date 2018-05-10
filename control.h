@@ -1,6 +1,7 @@
 #include "avr.h"
 #include "engine.h"
 #include "capacitor.h"
+#include "portpin.h"
 class Control
 {
 public:

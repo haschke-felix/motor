@@ -1,15 +1,13 @@
 #pragma once
 #include "avr.h"
 #include "engine.h"
+#include "portpin.h"
 
 class Capacitor
 {
 public:
 	 Capacitor();
-	 void init(volatile byte *port_discharge, volatile byte *ddr_dicharge, byte pin_discharge,
-	           volatile byte *port_charge, volatile byte *ddr_charge, byte pin_charge,
-	           volatile byte *ddr_charge_mosfet, byte pin_charge_mosfet,
-	           volatile byte *tccr_charge_mosfet, volatile byte *ocr_h_charge_mosfet, volatile byte *ocr_l_charge_mosfet, Engine *engine);
+	 void init(PortPin charge, PortPin charge_mosfet, volatile byte *pwm_pin, Engine *engine);
 	 void initPWM();
 	 void processPWM(byte pwm);
 	 void process();
@@ -52,16 +50,9 @@ private:
 		 ClearChargeMosfet, // enable
 	 };
 
-	 volatile byte * port_discharge_, *ddr_discharge_;
-	 volatile byte * port_charge_, *ddr_charge_;
-	 byte pin_discharge_;
-	 byte pin_charge_;
-
-
-	 volatile byte * ddr_charge_mosfet_;
-	 byte pin_charge_mosfet_;
-	 volatile byte * tccr_charge_mosfet_;
-	 volatile byte * ocr_h_charge_mosfet_, *ocr_l_charge_mosfet_;
+	 PortPin charge_mosfet_;
+	 PortPin charge_;
+	 volatile byte *pwm_pin_;
 
 	 byte previous_mode_;
 	 byte mode_;

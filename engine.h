@@ -1,5 +1,6 @@
 #pragma once
 #include "avr.h"
+#include "portpin.h"
 
 class Engine
 {
@@ -11,17 +12,17 @@ public:
 		CAPACITOR,
 	};
 
-	void init(volatile byte *port_motor_vcc, volatile byte * ddr_motor_vcc, byte pin_motor_vcc,
-	          volatile byte * port_motor_pwm, volatile byte * ddr_motor_pwm, byte pin_motor_pwm,
-	          volatile byte *port_cp1, volatile byte *ddr_cp1, byte pin_cp1,
-	          volatile byte *port_cp2, volatile byte *ddr_cp2, byte pin_cp2);
+	void init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2);
 	void process();
 	void initPWM();
 	void processPWM(byte pwm);
 	void setPWM(byte pwm);
-	byte getPWM(){return current_settings_.pwm_;}
+	byte getPWM();
+	byte getCurrentPWM(){return current_settings_.pwm_;}
 	void setMode(EngineMode mode);
-	EngineMode getMode(){return current_settings_.mode_;}
+	EngineMode getCurrentMode(){return current_settings_.mode_;}
+	EngineMode getMode();
+	bool getInProcess() {return in_process_;}
 	void setCP1(bool state);
 	void setCP2(bool state);
 
@@ -41,12 +42,6 @@ private:
 		enableCapacitor2,
 		disableCapacitors,
 		END,
-	};
-
-	struct PortPin
-	{
-		volatile byte *port_, *ddr_;
-		byte pin_;
 	};
 
 	PortPin motor_pwm_;

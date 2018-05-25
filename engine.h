@@ -15,7 +15,6 @@ public:
 	void init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2,PortPin cp1_charge, PortPin cp2_charge);
 	void process();
 	void initPWM();
-	void processPWM(byte pwm);
 	void setPWM(byte pwm);
 	byte getPWM();
 	byte getCurrentPWM(){return current_settings_.pwm_;}
@@ -28,11 +27,14 @@ public:
 	void setCP1Charge(bool state);
 	void setCP2Charge(bool state);
 
+
 private:
 	void startProcess();
 	void processing();
 
-	void updatePWM();
+	void processPWM(byte pwm);
+	void processPwmCp2(byte pwm);
+	void processPwmCp1(byte pwm);
 
 	enum Process : byte{
 		START,
@@ -61,6 +63,8 @@ private:
 	PortPin cp2_;
 	PortPin cp1_charge_;
 	PortPin cp2_charge_;
+	PortPin cp1_charge_mosfet_;
+	PortPin cp2_charge_mosfet_;
 
 	struct Settings
 	{
@@ -70,6 +74,8 @@ private:
 		bool cp2_ = false;
 		bool cp1_charge_ = false;
 		bool cp2_charge_ = false;
+		byte cp1_charge_pwm_ = 0;
+		byte cp2_charge_pwm_ = 0;
 	};
 	bool in_process_ = false;
 	bool new_new_used_;
@@ -81,6 +87,4 @@ private:
 	Process *process_ptr_;
 	Process processes_[12];
 	int counter_ = 1;
-
-
 };

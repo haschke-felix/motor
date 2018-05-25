@@ -26,11 +26,3 @@ void DataManager::init(volatile byte * send_buffer, volatile byte * receive_buff
 
 //}
 
-foo2::foo2()
-{
-
-}
-
-void foo2::init(){
-
-}

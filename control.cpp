@@ -6,7 +6,9 @@ Control::Control()
 }
 
 void Control::init(){
-	engine_.init(PortPins::set(&PORTD,&DDRD,7),PortPins::set(&PORTB,&DDRB,1),PortPins::set(&PORTD,&DDRD,0),PortPins::set(&PORTD,&DDRD,1));
+	engine_.init(PortPins::set(&PORTD,&DDRD,7),PortPins::set(&PORTB,&DDRB,1),
+	             PortPins::set(&PORTD,&DDRD,0),PortPins::set(&PORTD,&DDRD,1),
+	             PortPins::set(&PORTD,&DDRD,2),PortPins::set(&PORTD,&DDRD,4));
 	   cp1_.init(PortPins::set(&PORTD,&DDRD,2),PortPins::set(&PORTD,&DDRD,5),&OCR0A,&engine_);
 		cp2_.init(PortPins::set(&PORTD,&DDRD,4),PortPins::set(&PORTD,&DDRD,6),&OCR0B,&engine_);
 
@@ -16,8 +18,12 @@ void Control::init(){
 	//		engine_.setMode(Engine::ON);
 	//		engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
 	engine_.setPWM(0xF0);
-//	engine_.setMode(Engine::OFF);
-	engine_.setMode(Engine::ON);
+	engine_.setMode(Engine::CAPACITOR);
+//	engine_.setMode(Engine::ON);
+//	engine_.setCP1(true);
+	engine_.setCP2(true);
+//	bitSet(DDRD,1);
+//	bitClear(PORTD,1);
 }
 
 void Control::process()

@@ -6,63 +6,63 @@
 class Capacitor
 {
 public:
-	 Capacitor();
-	 void init(PortPin charge, PortPin charge_mosfet, volatile byte *pwm_pin, Engine *engine);
-	 void initPWM();
-	 void processPWM(byte pwm);
-	 void process();
-	 void processCharge(byte mode  = 0);
-	 void processDischarge(byte mode = 0);
-	 void setCharge(bool flag);
-	 bool getCharge();
-	 void setChargePWM(byte pwm){charge_pwm_ = pwm;}
-	 byte getChargePWM(){return charge_pwm_;}
-	 void setDischarge(bool flag); // priority mode
-	 bool getDischarge();
-	 int getLevel();
-	 long long int getTime();
+	Capacitor();
+	void init(PortPin charge, PortPin charge_mosfet, volatile byte *pwm_pin, Engine *engine);
+	void processPWM(byte pwm);
+	void process();
+	void processCharge(byte mode  = 0);
+	void processDischarge(byte mode = 0);
+	void setCharge(bool flag);
+	bool getCharge();
+	void setChargePWM(byte pwm){settings_.charge_pwm_ = pwm;}
+	byte getChargePWM(){return settings_.charge_pwm_;}
+	void setDischarge();
+	bool getDischarge();
+	int getLevel();
+	long long int getTime();
 
-
-
-	 enum CapacitorMode : byte{
-		 Discharge =  1 << 0,
-		 Charge    =  1 << 1,
-		 Update    =  1 << 2,
-		 InProcess =  1 << 3,
-	 };
+	enum CapacitorMode : byte{
+		Disabled,
+		Discharge,
+		Charge,
+	};
 
 
 private:
-	 enum Process{
-		 Nothing,
-		 ShutdownEngineBattery, // first Phase, decouple Engine from Battery
-		 ClearDischarge,  // enable
-		 StartEngine,
+	void initPWM();
 
-		 ShutdownEngine,
-		 SetDischarge,   // disable
-		 StartEngineBattery,
+	enum Process{
+		Nothing,
+		ShutdownEngineBattery, // first Phase, decouple Engine from Battery
+		ClearDischarge,  // enable
+		StartEngine,
 
-		 SetChargeMosfet, // disable
-		 SetCharge,       // disable
+		ShutdownEngine,
+		SetDischarge,   // disable
+		StartEngineBattery,
 
-		 ClearCharge,	   //enable
-		 ClearChargeMosfet, // enable
-	 };
+		SetChargeMosfet, // disable
+		SetCharge,       // disable
 
-	 PortPin charge_mosfet_;
-	 PortPin charge_;
-	 volatile byte *pwm_pin_;
+		ClearCharge,	   //enable
+		ClearChargeMosfet, // enable
+	};
 
-	 byte previous_mode_;
-	 byte mode_;
-	 byte next_mode_;
-	 long long int time_; // time of charge or discharge
-	 int level_;
-	 byte charge_pwm_;
-	 Engine * engine_;
+	struct Settings{
+		CapacitorMode mode_ = Disabled;
+		bool charge_pwm_ = 50;
+	};
 
-	 int counter_;
-	 Process * current_process_;
-	 Process process_array_[10];
+	Settings settings_;
+
+	PortPin charge_mosfet_;
+	PortPin charge_;
+	volatile byte *pwm_pin_;
+
+	long long int time_; // time of charge or discharge
+	int level_;
+
+	Engine * engine_;
+
+	int counter_;
 };

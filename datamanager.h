@@ -16,10 +16,5 @@ public:
 	Control control_;
 };
 
-class foo2{
-public:
-	foo2();
-	void init();
-};
 
 

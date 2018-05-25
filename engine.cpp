@@ -84,6 +84,7 @@ void Engine::startProcess()
 			}
 			processes_[process_counter++] = disableRelay;
 		}
+
 	}
 	else if(new_settings_.mode_ == CAPACITOR)
 	{

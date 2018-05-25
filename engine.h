@@ -25,8 +25,8 @@ public:
 	bool getInProcess() {return in_process_;}
 	void setCP1(bool state);
 	void setCP2(bool state);
-    void setCP1Charge(bool state);
-    void setCP2Charge(bool state);
+	void setCP1Charge(bool state);
+	void setCP2Charge(bool state);
 
 private:
 	void startProcess();
@@ -44,11 +44,14 @@ private:
 		enableCapacitor2,
 		disableCapacitor1,
 		disableCapacitor2,
-        enableChargeCapacitor1,
-        enableChargeCapacitor2,
-        disableChargeCapacitor1,
-        disableChargeCapacitor2,
-
+		enableChargeCapacitor1,
+		enableChargeCapacitor2,
+		disableChargeCapacitor1,
+		disableChargeCapacitor2,
+		enableChargeMosfet1,
+		enableChargeMosfet2,
+		disableChargeMosfet1,
+		disableChargeMosfet2,
 		END,
 	};
 
@@ -65,8 +68,8 @@ private:
 		EngineMode mode_ = OFF;
 		bool cp1_ = false;
 		bool cp2_ = false;
-        bool cp1_charge_ = false;
-        bool cp2_charge_ = false;
+		bool cp1_charge_ = false;
+		bool cp2_charge_ = false;
 	};
 	bool in_process_ = false;
 	bool new_new_used_;
@@ -76,7 +79,7 @@ private:
 	Settings new_new_settings_; // dont use in_process_
 
 	Process *process_ptr_;
-	Process processes_[8];
+	Process processes_[12];
 	int counter_ = 1;
 
 

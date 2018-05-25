@@ -104,6 +104,20 @@ void Engine::startProcess()
 				}
 				processes_[process_counter++] = enableMosfet;
 			}
+			bool change_cp1_charge = new_settings_.cp1_charge_ ^ current_settings_.cp1_charge_ && new_settings_.cp1_charge_ ^ new_settings_.cp1_;
+			bool change_cp2_charge = new_settings_.cp2_charge_ ^ current_settings_.cp2_charge_ && new_settings_.cp2_charge_ ^ new_settings_.cp2_;
+			if(change_cp1_charge || change_cp2_charge){ // change
+				processes_[process_counter++] = disableMosfet;
+				if(change_cp1_charge){
+					processes_[process_counter++] = (new_settings_.cp1_charge_ ?	enableChargeCapacitor1 : disableChargeCapacitor1);
+				}
+				if(change_cp2_charge){
+					bitSet(DDRC,4);
+					bitSet(PORTC,4);
+					processes_[process_counter++] = (new_settings_.cp2_charge_ ?	enableChargeCapacitor2 : disableChargeCapacitor2);
+				}
+				processes_[process_counter++] = enableMosfet;
+			}
 		}
 		else{
 			processes_[process_counter++] = disableMosfet;

@@ -64,6 +64,12 @@ void Engine::startProcess()
 			processes_[process_counter++] = disableCapacitor1;
 			processes_[process_counter++] = disableCapacitor2;
 		}
+		if(current_settings_.cp1_charge_ != new_settings_.cp1_charge_){
+			processes_[process_counter++] = (new_settings_.cp1_charge_ ? enableChargeCapacitor1 : disableChargeCapacitor1);
+		}
+		if(current_settings_.cp2_charge_ != new_settings_.cp2_charge_){
+			processes_[process_counter++] = (new_settings_.cp2_charge_ ? enableChargeCapacitor2 : disableChargeCapacitor2);
+		}
 		processes_[process_counter++] = enableRelay;
 		processes_[process_counter++] = enableMosfet;
 	}

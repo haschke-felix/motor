@@ -8,9 +8,8 @@ Control::Control()
 void Control::init(){
 	engine_.init(PortPins::set(&PORTD,&DDRD,7),PortPins::set(&PORTB,&DDRB,1),
 	             PortPins::set(&PORTD,&DDRD,0),PortPins::set(&PORTD,&DDRD,1),
-	             PortPins::set(&PORTD,&DDRD,2),PortPins::set(&PORTD,&DDRD,4));
-	   cp1_.init(PortPins::set(&PORTD,&DDRD,2),PortPins::set(&PORTD,&DDRD,5),&OCR0A,&engine_);
-		cp2_.init(PortPins::set(&PORTD,&DDRD,4),PortPins::set(&PORTD,&DDRD,6),&OCR0B,&engine_);
+	             PortPins::set(&PORTD,&DDRD,2),PortPins::set(&PORTD,&DDRD,4),
+	             PortPins::set(&PORTD,&DDRD,5),PortPins::set(&PORTD,&DDRD,6));
 
 	initADC();
 	//		engine_.setPWM(55);

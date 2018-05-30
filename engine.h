@@ -12,7 +12,9 @@ public:
 		CAPACITOR,
 	};
 
-	void init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2,PortPin cp1_charge, PortPin cp2_charge);
+	void init(PortPin motor_vcc, PortPin motor_pwm,
+	          PortPin cp1, PortPin cp2,
+	          PortPin cp1_charge, PortPin cp2_charge, PortPin cp1_charge_mosfet, PortPin cp2_charge_mosfet);
 	void process();
 	void initPWM();
 	void setPWM(byte pwm);

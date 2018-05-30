@@ -5,7 +5,7 @@ Engine::Engine()
 
 }
 
-void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2, PortPin cp1_charge, PortPin cp2_charge)
+void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2, PortPin cp1_charge, PortPin cp2_charge,PortPin cp1_charge_mosfet, PortPin cp2_charge_mosfet)
 {
 	// charge mosfet pwm pin declaration
 	motor_vcc_ = motor_vcc;
@@ -15,6 +15,8 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2
 	cp2_ = cp2;
 	cp1_charge_ = cp1_charge;
 	cp2_charge_ = cp2_charge;
+	cp1_charge_mosfet_ = cp1_charge_mosfet;
+	cp2_charge_mosfet_ = cp2_charge_mosfet;
 
 	// init mosfet pins
 	bitSet(*motor_pwm_.port,motor_pwm_.pin);
@@ -23,6 +25,18 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2
 	// init relay pins
 	bitSet(*motor_vcc_.port,motor_vcc_.pin);
 	bitSet(*motor_vcc_.ddr,motor_vcc_.pin);
+
+	bitSet(*cp1_charge_mosfet_.port,cp1_charge_mosfet_.pin);
+	bitSet(*cp1_charge_mosfet_.ddr,cp1_charge_mosfet_.pin);
+
+	bitSet(*cp2_charge_mosfet_.port,cp2_charge_mosfet_.pin);
+	bitSet(*cp2_charge_mosfet_.ddr,cp2_charge_mosfet_.pin);
+
+	bitSet(*cp1_charge_.port,cp1_charge_.pin);
+	bitSet(*cp1_charge_.ddr,cp1_charge_.pin);
+
+	bitSet(*cp2_charge_.port,cp2_charge_.pin);
+	bitSet(*cp2_charge_.ddr,cp2_charge_.pin);
 
 	// init Capacitors Pins
 	bitSet(*cp1_.port,cp1_.pin);

@@ -28,6 +28,8 @@ public:
 	void setCP2(bool state);
 	void setCP1Charge(bool state);
 	void setCP2Charge(bool state);
+	void setCP1ChargePWM(byte pwm);
+	void setCP2ChargePWM(byte pwm);
 
 
 private:

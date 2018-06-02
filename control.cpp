@@ -17,10 +17,14 @@ void Control::init(){
 	//		engine_.setMode(Engine::ON);
 	//		engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
 	engine_.setPWM(0xF0);
-	engine_.setMode(Engine::CAPACITOR);
-//	engine_.setMode(Engine::ON);
+//	engine_.setMode(Engine::CAPACITOR);
+	engine_.setMode(Engine::ON);
+//	engine_.setCP1ChargePWM(255);
+//	engine_.setCP2ChargePWM(255);
+//	engine_.setCP1Charge(true);
+//	engine_.setCP2Charge(true);
 //	engine_.setCP1(true);
-	engine_.setCP2(true);
+//	engine_.setCP2(true);
 //	bitSet(DDRD,1);
 //	bitClear(PORTD,1);
 }

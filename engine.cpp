@@ -26,8 +26,8 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2
 	bitSet(*motor_vcc_.port,motor_vcc_.pin);
 	bitSet(*motor_vcc_.ddr,motor_vcc_.pin);
 
-	bitSet(*cp1_charge_mosfet_.port,cp1_charge_mosfet_.pin);
-	bitSet(*cp2_charge_mosfet_.port,cp2_charge_mosfet_.pin);
+	bitSet(*cp1_charge_mosfet_.ddr,cp1_charge_mosfet_.pin);
+	bitSet(*cp2_charge_mosfet_.ddr,cp2_charge_mosfet_.pin);
 
 	bitSet(*cp1_charge_.port,cp1_charge_.pin);
 	bitSet(*cp1_charge_.ddr,cp1_charge_.pin);
@@ -44,8 +44,6 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2
 
 	initPWM();
 	processPWM(0);
-	processPwmCp1(30);
-	processPwmCp2(30);
 }
 
 
@@ -297,7 +295,7 @@ void Engine::processing()
 void Engine::initPWM()
 {
 	TCCR1A|=(1<<WGM10);
-	TCCR1A |= (1 << COM1A1)|(1 << COM1B1)/*|(1 << COM1C1)*/;
+	TCCR1A |= (1 << COM1A1);
 	TCCR1B |= (1 << CS10)|(1 << CS10);
 	OCR1A = 0xFF; // out at OC1A
 
@@ -316,12 +314,12 @@ void Engine::processPWM(byte pwm)
 
 void Engine::processPwmCp1(byte pwm)
 {
-	OCR0B = 0xFF - pwm;
+	OCR0A = 0xFF - pwm;
 }
 
 void Engine::processPwmCp2(byte pwm)
 {
-	OCR0A = 0xFF - pwm;
+	OCR0B = 0xFF - pwm;
 }
 
 void Engine::setPWM(byte pwm)
@@ -458,7 +456,9 @@ void Engine::setCP1ChargePWM(byte pwm)
 {
 	if(!in_process_){
 		current_settings_.cp1_charge_pwm_ = pwm;
-		// WE HAVE TO SET THIS VALUE
+		if(current_settings_.cp1_charge_ && ! current_settings_.cp1_){
+			processPwmCp1(current_settings_.cp1_charge_pwm_ = pwm);
+		}
 	}
 	else{
 		if(!new_new_used_){
@@ -473,7 +473,9 @@ void Engine::setCP2ChargePWM(byte pwm)
 {
 	if(!in_process_){
 		current_settings_.cp2_charge_pwm_ = pwm;
-		// WE HAVE TO SET THIS VALUE
+		if(current_settings_.cp2_charge_ && ! current_settings_.cp2_){
+			processPwmCp2(current_settings_.cp2_charge_pwm_ = pwm);
+		}
 	}
 	else{
 		if(!new_new_used_){

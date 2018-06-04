@@ -38,9 +38,13 @@ int main(void)
 #endif
 //	bitSet(DDRC,4);
 //	bitSet(PORTC,4);
-
+//+
 	while(true)
 	{
 		control.process();
+//		bitSet(DDRD,5);
+//		bitClear(PORTD,5);
+//		bitSet(DDRD,6);
+//		bitClear(PORTD,6);
 	}
 }

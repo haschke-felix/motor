@@ -40,10 +40,49 @@ void Control::init(){
 void Control::process()
 {
 	bool discharge1 =  bitRead(*discharge1_.port_pin_.in_pin,discharge1_.port_pin_.pin);
-	if(discharge1 != discharge1_.current_state_){ // change
-		if(discharge1){
+	bool discharge2 =  bitRead(*discharge2_.port_pin_.in_pin,discharge2_.port_pin_.pin);
+	bool disabled;
 
+	if(discharge1 != discharge1_.current_state_){ // change
+		discharge1_.current_state_ = discharge1;
+		engine_.setCP1(!discharge1);
+		if(discharge1){
+			disabled = true;
 		}
+		else{
+			engine_.setMode(Engine::CAPACITOR);
+		}
+	}
+
+	if(discharge2 != discharge2_.current_state_){ // change
+		discharge2_.current_state_ = discharge2;
+		engine_.setCP2(!discharge2);
+		if(discharge2){
+			disabled = true;
+		}
+		else{
+			engine_.setMode(Engine::CAPACITOR);
+		}
+	}
+
+
+	if(disabled){
+		if(discharge1 && discharge2){
+			engine_.setMode(Engine::ON);
+		}
+	}
+
+	bool charge1 = bitRead(*charge1_.port_pin_.in_pin,charge1_.port_pin_.pin);
+	bool charge2 = bitRead(*charge2_.port_pin_.in_pin,charge2_.port_pin_.pin);
+
+	if(charge1 != charge1_.current_state_){ // change
+		charge1_.current_state_ = charge1;
+		engine_.setCP1Charge(!charge1);
+	}
+
+	if(charge2 != charge2_.current_state_){ // change
+		charge2_.current_state_ = charge2;
+		engine_.setCP2Charge(!charge2);
 	}
 
 	accelerate();

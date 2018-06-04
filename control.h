@@ -1,6 +1,5 @@
 #include "avr.h"
 #include "engine.h"
-#include "capacitor.h"
 #include "portpin.h"
 class Control
 {
@@ -13,11 +12,24 @@ public:
 	 void process();
 	 void writeEnginePWM();
 	 void initADC();
-	 byte getSpeedPedal();
+	 void accelerate();
+	 byte getPedalSpeed();
+	 void setPWM(byte pwm){pwm_ = pwm;}
+	 byte getPWM(){return pwm_;}
 
-	 Engine  engine_;
-	 Capacitor  cp1_;
-	 Capacitor  cp2_;
-	 int count_;
 private:
+	 Engine  engine_;
+	 int count_;
+	 byte acceleration_counter_;
+	 byte pwm_;
+	 byte current_pwm_;
+	 struct InputPin{
+		 bool current_state_;
+		 PortPin port_pin_;
+	 };
+
+	 InputPin charge1_;
+	 InputPin charge2_;
+	 InputPin discharge1_;
+	 InputPin discharge2_;
 };

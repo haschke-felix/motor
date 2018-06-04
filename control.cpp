@@ -1,5 +1,4 @@
 #include "control.h"
-
 Control::Control()
 {
 
@@ -12,6 +11,15 @@ void Control::init(){
 	             PortPins::set(&PORTD,&DDRD,5),PortPins::set(&PORTD,&DDRD,6));
 
 	initADC();
+
+	discharge1_.port_pin_ = PortPins::set(&PORTC,&DDRC,&PINC,1);
+	discharge2_.port_pin_ = PortPins::set(&PORTC,&DDRC,&PINC,2);
+	charge1_.port_pin_ = PortPins::set(&PORTC,&DDRC,&PINC,3);
+	charge2_.port_pin_ = PortPins::set(&PORTC,&DDRC,&PINC,4);
+	bitSet(*discharge1_.port_pin_.port,discharge1_.port_pin_.pin);
+	bitSet(*discharge2_.port_pin_.port,discharge2_.port_pin_.pin);
+	bitSet(*charge1_.port_pin_.port,charge1_.port_pin_.pin);
+	bitSet(*charge2_.port_pin_.port,charge2_.port_pin_.pin);
 	//		engine_.setPWM(55);
 
 	//		engine_.setMode(Engine::ON);
@@ -20,26 +28,31 @@ void Control::init(){
 	engine_.setMode(Engine::CAPACITOR);
 	engine_.setMode(Engine::ON);
 	engine_.setCP1ChargePWM(255);
-//	engine_.setCP2ChargePWM(255);
-//	engine_.setCP2Charge(true);
+	//	engine_.setCP2ChargePWM(255);
+	//	engine_.setCP2Charge(true);
 	engine_.setCP1Charge(true);
-//	engine_.setCP1(true);
+	//	engine_.setCP1(true);
 	engine_.setCP2(true);
-//	bitSet(DDRD,1);
-//	bitClear(PORTD,1);
+	//	bitSet(DDRD,1);
+	//	bitClear(PORTD,1);
 }
 
 void Control::process()
 {
-	engine_.process();
-	cp1_.process();
-	cp2_.process();
+	bool discharge1 =  bitRead(*discharge1_.port_pin_.in_pin,discharge1_.port_pin_.pin);
+	if(discharge1 != discharge1_.current_state_){ // change
+		if(discharge1){
 
+		}
+	}
+
+	accelerate();
 	count_++;
 	if(count_ == 100){
-		engine_.setPWM(getSpeedPedal());
+		pwm_ = getPedalSpeed();
 		count_ = 0;
 	}
+	engine_.process();
 }
 
 void Control::initADC()
@@ -48,7 +61,35 @@ void Control::initADC()
 	bitSet(ADMUX,REFS0);
 }
 
-byte Control::getSpeedPedal()
+void Control::accelerate()
+{
+	if(acceleration_counter_ && !(--acceleration_counter_)){
+		if(current_pwm_ == pwm_)
+		{
+			acceleration_counter_ = 0x00;
+			return;
+		}
+		if(current_pwm_ > pwm_)
+		{
+			acceleration_counter_ = 0x00;
+			current_pwm_ = pwm_;
+		}
+		else{
+			current_pwm_++;
+			if(current_pwm_ == pwm_){
+				acceleration_counter_ = 0x00;
+
+			}
+			else{
+				int acceleration = 0xFF - current_pwm_ + 1;
+				acceleration_counter_ = acceleration;
+			}
+		}
+		engine_.setPWM(current_pwm_);
+	}
+}
+
+byte Control::getPedalSpeed()
 {
 	/* adcx is the analog pin we want to use.  ADMUX's first few bits are
 		 * the binary representations of the numbers of the pins so we can

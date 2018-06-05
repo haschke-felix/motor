@@ -12,35 +12,35 @@ void Control::init(){
 
 	initADC();
 
-	discharge1_.port_pin_ = PortPins::set(&PORTC,&DDRC,&PINC,1);
-	discharge2_.port_pin_ = PortPins::set(&PORTC,&DDRC,&PINC,2);
-	charge1_.port_pin_ = PortPins::set(&PORTC,&DDRC,&PINC,3);
-	charge2_.port_pin_ = PortPins::set(&PORTC,&DDRC,&PINC,4);
-	bitSet(*discharge1_.port_pin_.port,discharge1_.port_pin_.pin);
-	bitSet(*discharge2_.port_pin_.port,discharge2_.port_pin_.pin);
-	bitSet(*charge1_.port_pin_.port,charge1_.port_pin_.pin);
-	bitSet(*charge2_.port_pin_.port,charge2_.port_pin_.pin);
+	discharge1_.setPins(&PORTC,&DDRC,&PINC,1);
+	discharge2_.setPins(&PORTC,&DDRC,&PINC,2);
+	charge1_.setPins(&PORTC,&DDRC,&PINC,3);
+	charge2_.setPins(&PORTC,&DDRC,&PINC,4);
+	discharge1_.set();
+	discharge2_.set();
+	charge1_.set();
+	charge2_.set();
 	//		engine_.setPWM(55);
 
 	//		engine_.setMode(Engine::ON);
 	//		engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
-	engine_.setPWM(0xF0);
-	engine_.setMode(Engine::CAPACITOR);
+//	engine_.setPWM(0xF0);
+//	engine_.setMode(Engine::CAPACITOR);
 	engine_.setMode(Engine::ON);
 	engine_.setCP1ChargePWM(255);
-	//	engine_.setCP2ChargePWM(255);
+	engine_.setCP2ChargePWM(255);
 	//	engine_.setCP2Charge(true);
-	engine_.setCP1Charge(true);
+//	engine_.setCP1Charge(true);
 	//	engine_.setCP1(true);
-	engine_.setCP2(true);
+//	engine_.setCP2(true);
 	//	bitSet(DDRD,1);
 	//	bitClear(PORTD,1);
 }
 
 void Control::process()
 {
-	bool discharge1 =  bitRead(*discharge1_.port_pin_.in_pin,discharge1_.port_pin_.pin);
-	bool discharge2 =  bitRead(*discharge2_.port_pin_.in_pin,discharge2_.port_pin_.pin);
+	bool discharge1 =  discharge1_.read();
+	bool discharge2 =  discharge2_.read();
 	bool disabled;
 
 	if(discharge1 != discharge1_.current_state_){ // change
@@ -72,8 +72,8 @@ void Control::process()
 		}
 	}
 
-	bool charge1 = bitRead(*charge1_.port_pin_.in_pin,charge1_.port_pin_.pin);
-	bool charge2 = bitRead(*charge2_.port_pin_.in_pin,charge2_.port_pin_.pin);
+	bool charge1 = charge1_.read();
+	bool charge2 = charge2_.read();
 
 	if(charge1 != charge1_.current_state_){ // change
 		charge1_.current_state_ = charge1;

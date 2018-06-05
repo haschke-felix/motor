@@ -19,28 +19,28 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2
 	cp2_charge_mosfet_ = cp2_charge_mosfet;
 
 	// init mosfet pins
-	bitSet(*motor_pwm_.port,motor_pwm_.pin);
-	bitSet(*motor_pwm_.ddr,motor_pwm_.pin);
+	motor_pwm_.set();
+	motor_pwm_.output();
 
 	// init relay pins
-	bitSet(*motor_vcc_.port,motor_vcc_.pin);
-	bitSet(*motor_vcc_.ddr,motor_vcc_.pin);
+	motor_vcc_.set();
+	motor_vcc_.output();
 
-	bitSet(*cp1_charge_mosfet_.ddr,cp1_charge_mosfet_.pin);
-	bitSet(*cp2_charge_mosfet_.ddr,cp2_charge_mosfet_.pin);
+	cp1_charge_mosfet_.output();
+	cp2_charge_mosfet_.output();
 
-	bitSet(*cp1_charge_.port,cp1_charge_.pin);
-	bitSet(*cp1_charge_.ddr,cp1_charge_.pin);
+	cp1_charge_.set();
+	cp1_charge_.output();
 
-	bitSet(*cp2_charge_.port,cp2_charge_.pin);
-	bitSet(*cp2_charge_.ddr,cp2_charge_.pin);
+	cp2_charge_.set();
+	cp2_charge_.output();
 
 	// init Capacitors Pins
-	bitSet(*cp1_.port,cp1_.pin);
-	bitSet(*cp1_.ddr,cp1_.pin);
+	cp1_.set();
+	cp1_.output();
 
-	bitSet(*cp2_.port,cp2_.pin);
-	bitSet(*cp2_.ddr,cp2_.pin);
+	cp2_.set();
+	cp2_.output();
 
 	initPWM();
 	processPWM(0);
@@ -210,10 +210,10 @@ void Engine::startProcess()
 void Engine::processing()
 {
 	if(*process_ptr_ == enableRelay){
-		bitClear(*motor_vcc_.port,motor_vcc_.pin);
+		motor_vcc_.clear();
 	}
 	else if(*process_ptr_ == disableRelay){
-		bitSet(*motor_vcc_.port,motor_vcc_.pin);
+		motor_vcc_.set();
 	}
 	else if(*process_ptr_ ==  enableMosfet){
 		processPWM(new_settings_.pwm_);
@@ -223,33 +223,33 @@ void Engine::processing()
 	}
 
 	else if(*process_ptr_ == enableCapacitor1){
-		bitClear(*cp1_.port,cp1_.pin);
+		cp1_.clear();
 	}
 	else if(*process_ptr_ == enableCapacitor2)
 	{
-		bitClear(*cp2_.port,cp2_.pin);
+		cp2_.clear();
 	}
 
 	else if(*process_ptr_ == disableCapacitor1){
-		bitSet(*cp1_.port,cp1_.pin);
+		cp1_.set();
 	}
 	else if(*process_ptr_ == disableCapacitor2)
 	{
-		bitSet(*cp2_.port,cp2_.pin);
+		cp2_.set();
 	}
 	else if(*process_ptr_ == disableChargeCapacitor1){
-		bitSet(*cp1_charge_.port,(cp1_charge_).pin);
+		cp1_charge_.set();
 	}
 	else if(*process_ptr_ == disableChargeCapacitor2)
 	{
-		bitSet(*cp2_charge_.port,cp2_charge_.pin);
+		cp2_charge_.set();
 	}
 	else if(*process_ptr_ == enableChargeCapacitor1){
-		bitClear(*cp1_charge_.port,cp1_charge_.pin);
+		cp1_charge_.clear();
 	}
 	else if(*process_ptr_ == enableChargeCapacitor2)
 	{
-		bitClear(*cp2_charge_.port,cp2_charge_.pin);
+		cp2_charge_.clear();
 	}
 	else if(*process_ptr_ == enableChargeMosfet1)
 	{

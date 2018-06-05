@@ -23,9 +23,9 @@ private:
 	 byte acceleration_counter_;
 	 byte pwm_;
 	 byte current_pwm_;
-	 struct InputPin{
+	 struct InputPin : PortPin{
 		 bool current_state_;
-		 PortPin port_pin_;
+//		 PortPin port_pin_;
 	 };
 
 	 InputPin charge1_;

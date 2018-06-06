@@ -117,7 +117,7 @@ void Control::accelerate()
 		else{
 			current_pwm_++;
 			if(current_pwm_ == pwm_){
-				acceleration_counter_ = 0x00;
+				// acceleration counter is already 0
 
 			}
 			else{

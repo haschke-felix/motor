@@ -90,6 +90,9 @@ void Control::process()
 	if(count_ == 100){
 		pwm_ = getPedalSpeed();
 		count_ = 0;
+		if(pwm_ != current_pwm_){
+			acceleration_counter_ = 1;
+		}
 	}
 	engine_.process();
 }
@@ -102,15 +105,13 @@ void Control::initADC()
 
 void Control::accelerate()
 {
-	if(acceleration_counter_ && !(--acceleration_counter_)){
+	if(acceleration_counter_ && --acceleration_counter_ == 0){
 		if(current_pwm_ == pwm_)
 		{
-			acceleration_counter_ = 0x00;
 			return;
 		}
 		if(current_pwm_ > pwm_)
 		{
-			acceleration_counter_ = 0x00;
 			current_pwm_ = pwm_;
 		}
 		else{

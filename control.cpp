@@ -41,11 +41,12 @@ void Control::process()
 {
 	bool discharge1 =  discharge1_.read();
 	bool discharge2 =  discharge2_.read();
-	bool disabled;
+	bool disabled = false;
 
 	if(discharge1 != discharge1_.current_state_){ // change
 		discharge1_.current_state_ = discharge1;
 		engine_.setCP1(!discharge1);
+		engine_.setPWM(current_pwm_);
 		if(discharge1){
 			disabled = true;
 		}
@@ -57,6 +58,8 @@ void Control::process()
 	if(discharge2 != discharge2_.current_state_){ // change
 		discharge2_.current_state_ = discharge2;
 		engine_.setCP2(!discharge2);
+		engine_.setPWM(current_pwm_);
+
 		if(discharge2){
 			disabled = true;
 		}
@@ -64,7 +67,6 @@ void Control::process()
 			engine_.setMode(Engine::CAPACITOR);
 		}
 	}
-
 
 	if(disabled){
 		if(discharge1 && discharge2){

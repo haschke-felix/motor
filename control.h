@@ -24,7 +24,7 @@ private:
 	 byte pwm_;
 	 byte current_pwm_;
 	 struct InputPin : PortPin{
-		 bool current_state_;
+		 bool current_state_ = true;
 //		 PortPin port_pin_;
 	 };
 

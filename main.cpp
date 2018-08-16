@@ -5,39 +5,36 @@
 
 
 
-//   DataManager manager;
-SPI spi(16);
-DataManager manager(&spi, 0xFFFF);
-//Engine engine;
+//SPI spi(16);
+//DataManager manager(&spi, 0); // with sampling rate = 0, nether a transmission would be occur
 
-ISR(SPI_STC_vect){
-	if(spi.byteFinished()){ // transmission finished
-		manager.transmissionFinished();
-	}
-}
+//ISR(SPI_STC_vect){
+//	if(spi.byteFinished()){ // transmission finished
+//		manager.transmissionFinished();
+//	}
+//}
 
 int main(void)
 {
 #if 1
+	TCCR1A|=(1<<WGM10);
+	TCCR1A |= (1 << COM1A1);
+	TCCR1B |= (1 << CS10)|(1 << CS10);
+	OCR1A = 0xFF; // out at OC1A
 
-//	ADCSRA |= _BV(ADEN);
-//	bitSet(ADMUX,REFS0);
-
-//	bitSet(DDRB,1);
-//	bitSet(DDRD,7);
-//	bitClear(PORTB,1);
-//	bitClear(PORTD,7);
-
+	TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
+	TCCR0A |= (1 << WGM01) | (1 << WGM00);
+	TCCR0B |= (1 << CS01);
+	OCR0B = 0xFF;
+	OCR0A = 0xFF;
 	sei();
+	bitSet(DDRB,1);
+	OCR1A = 50;
 
-//	control.init();
 #endif
-//	bitSet(DDRC,4);
-//	bitSet(PORTC,4);
-//+
 	while(true)
 	{
-		manager.process();
+//		manager.process();
 	}
 }
 

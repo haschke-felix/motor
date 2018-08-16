@@ -20,12 +20,11 @@ void Control::init(){
 	discharge2_.set();
 	charge1_.set();
 	charge2_.set();
-	//		engine_.setPWM(55);
+//	engine_.setPWM(55);
 
 	//		engine_.setMode(Engine::ON);
 	//		engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
-	//	engine_.setPWM(0xF0);
-	//	engine_.setMode(Engine::CAPACITOR);
+//	  engine_.setPWM(50);
 	engine_.setMode(Engine::ON);
 	engine_.setCP1ChargePWM(255);
 	engine_.setCP2ChargePWM(255);
@@ -39,63 +38,64 @@ void Control::init(){
 
 void Control::process()
 {
-//	bool discharge1 =  discharge1_.read();
-//	bool discharge2 =  discharge2_.read();
-//	bool disabled = false;
+#if 0
+	bool discharge1 =  discharge1_.read();
+	bool discharge2 =  discharge2_.read();
+	bool disabled = false;
 
-//	if(discharge1 != discharge1_.current_state_){ // change
-//		discharge1_.current_state_ = discharge1;
-//		engine_.setCP1(!discharge1);
-//		engine_.setPWM(current_pwm_);
-//		if(discharge1){
-//			disabled = true;
-//		}
-//		else{
-//			engine_.setMode(Engine::CAPACITOR);
-//		}
-//	}
-
-//	if(discharge2 != discharge2_.current_state_){ // change
-//		discharge2_.current_state_ = discharge2;
-//		engine_.setCP2(!discharge2);
-//		engine_.setPWM(current_pwm_);
-
-//		if(discharge2){
-//			disabled = true;
-//		}
-//		else{
-//			engine_.setMode(Engine::CAPACITOR);
-//		}
-//	}
-
-//	if(disabled){
-//		if(discharge1 && discharge2){
-//			engine_.setMode(Engine::ON);
-//		}
-//	}
-
-//	bool charge1 = charge1_.read();
-//	bool charge2 = charge2_.read();
-
-//	if(charge1 != charge1_.current_state_){ // change
-//		charge1_.current_state_ = charge1;
-//		engine_.setCP1Charge(!charge1);
-//	}
-
-//	if(charge2 != charge2_.current_state_){ // change
-//		charge2_.current_state_ = charge2;
-//		engine_.setCP2Charge(!charge2);
-//	}
-
-//	accelerate();
-	if(++count_ == 100){
-		pwm_ = getPedalSpeed();
-		count_ = 0;
-		if(pwm_ != current_pwm_){
-//			acceleration_counter_ = 1;
-			engine_.setPWM(pwm_);
+	if(discharge1 != discharge1_.current_state_){ // change
+		discharge1_.current_state_ = discharge1;
+		engine_.setCP1(!discharge1);
+		engine_.setPWM(current_pwm_);
+		if(discharge1){
+			disabled = true;
+		}
+		else{
+			engine_.setMode(Engine::CAPACITOR);
 		}
 	}
+
+	if(discharge2 != discharge2_.current_state_){ // change
+		discharge2_.current_state_ = discharge2;
+		engine_.setCP2(!discharge2);
+		engine_.setPWM(current_pwm_);
+
+		if(discharge2){
+			disabled = true;
+		}
+		else{
+			engine_.setMode(Engine::CAPACITOR);
+		}
+	}
+
+	if(disabled){
+		if(discharge1 && discharge2){
+			engine_.setMode(Engine::ON);
+		}
+	}
+
+	bool charge1 = charge1_.read();
+	bool charge2 = charge2_.read();
+
+	if(charge1 != charge1_.current_state_){ // change
+		charge1_.current_state_ = charge1;
+		engine_.setCP1Charge(!charge1);
+	}
+
+	if(charge2 != charge2_.current_state_){ // change
+		charge2_.current_state_ = charge2;
+		engine_.setCP2Charge(!charge2);
+	}
+#endif
+//	accelerate();
+//	if(++count_ == 100){
+//		pwm_ = getPedalSpeed();
+//		count_ = 0;
+//		if(pwm_ != current_pwm_){
+////			acceleration_counter_ = 1;
+//			engine_.setPWM(pwm_);
+//		}
+//	}
 	engine_.process();
 }
 

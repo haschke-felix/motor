@@ -43,7 +43,7 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2
 	cp2_.output();
 
 	initPWM();
-	processPWM(0);
+	processPWM(55);
 }
 
 

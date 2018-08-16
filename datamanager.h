@@ -10,10 +10,6 @@ public:
 	void process();
 	void transmissionFinished();
 
-
-////	void process();
-////	void evaluate();
-
 private:
 
 	SPI * spi_;
@@ -21,6 +17,7 @@ private:
 	int byteArrayToInt(byte * ptr);
 	void intToByteArray(int val, byte &b1, byte &b2);
 	void intIntoArray(int val, byte * ptr);
+	void evaluate();
 	struct Receive{
 		byte cp1_discharge;
 		byte cp1_charge;
@@ -29,7 +26,7 @@ private:
 		byte cp2_charge;
 		byte cp2_charge_pwm;
 		byte motor; // on or off
-	} receive;
+	} receive_, old_receive_;
 
 	struct Tranmitt{
 		int v;
@@ -40,11 +37,11 @@ private:
 		int motor_pwm;
 		int cp1_voltage;
 		int cp2_voltage;
-	} transmitt;
+	} transmitt_;
 
 	Control control_;
 	int counter_ = 1;
-	const int taste_rate_;
+	const int sampling_rate_;
 };
 
 

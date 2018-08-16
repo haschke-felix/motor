@@ -352,7 +352,6 @@ byte Engine::getPWM()
 
 void Engine::setMode(Engine::EngineMode mode)
 {
-
 	if(in_process_){
 		new_new_settings_.mode_ = mode;
 		if(!new_new_used_){

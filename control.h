@@ -16,8 +16,16 @@ public:
 	 void initADC();
 	 void accelerate();
 	 byte getPedalSpeed();
-	 void setPWM(byte pwm){pwm_ = pwm;}
-	 byte getPWM(){return pwm_;}
+
+
+	 byte getCurrentPWM(){}
+	 void setMode(Engine::EngineMode mode);
+	 void setCP1(bool state);
+	 void setCP2(bool state);
+	 void setCP1Charge(bool state);
+	 void setCP2Charge(bool state);
+	 void setCP1ChargePWM(byte pwm);
+	 void setCP2ChargePWM(byte pwm);
 
 private:
 	 Engine  engine_;
@@ -27,7 +35,6 @@ private:
 	 byte current_pwm_;
 	 struct InputPin : PortPin{
 		 bool current_state_ = true;
-//		 PortPin port_pin_;
 	 };
 
 	 InputPin charge1_;

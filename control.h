@@ -1,6 +1,8 @@
+#pragma once
 #include "avr.h"
 #include "engine.h"
 #include "portpin.h"
+
 class Control
 {
 public:

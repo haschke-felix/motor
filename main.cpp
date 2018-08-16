@@ -2,26 +2,22 @@
 #include"spi.h"
 #include"datamanager.h"
 #include "engine.h"
-//twi twi;
-
-volatile byte send_buffer[32];
-volatile byte receive_buffer[32];
-volatile bool evaluate;
-
-
 
 
 
 //   DataManager manager;
-//DataManager manager();
+SPI spi(16);
+DataManager manager(&spi, 0xFFFF);
 //Engine engine;
-Control control;
+
+ISR(SPI_STC_vect){
+	if(spi.byteFinished()){ // transmission finished
+		manager.transmissionFinished();
+	}
+}
 
 int main(void)
 {
-	//	foo_.init();
-	//	initSPI(&receive_buffer[0],&send_buffer[0],&evaluate);  //Initialize slave SPI
-//		manager.init(&send_buffer[0],&receive_buffer[0],&evaluate);
 #if 1
 
 //	ADCSRA |= _BV(ADEN);
@@ -34,17 +30,14 @@ int main(void)
 
 	sei();
 
-	control.init();
+//	control.init();
 #endif
 //	bitSet(DDRC,4);
 //	bitSet(PORTC,4);
 //+
 	while(true)
 	{
-		control.process();
-//		bitSet(DDRD,5);
-//		bitClear(PORTD,5);
-//		bitSet(DDRD,6);
-//		bitClear(PORTD,6);
+		manager.process();
 	}
 }
+

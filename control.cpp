@@ -90,6 +90,13 @@ void Control::process()
 //	accelerate();
 	if(++count_ == 100){
 		pwm_ = getPedalSpeed();
+//		pwm_ = 0;
+		if(pwm_ == 0){
+			bitSet(DDRB,0);
+			bitSet(PORTB,0);
+		}
+		else
+			bitClear(PORTB,0);
 		count_ = 0;
 		if(pwm_ != current_pwm_){
 //			acceleration_counter_ = 1;
@@ -152,7 +159,13 @@ byte Control::getPedalSpeed()
 	while ( (ADCSRA & _BV(ADSC)) );
 
 	/* Finally, we return the converted value to the calling function. */
-	return ADC / 4;
+	return map(ADC,200,1023,0,255);
+//	return ADC/4;
+}
+
+int Control::map(int x, int in_min, int in_max, int out_min, int out_max)
+{
+return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void Control::setMode(Engine::EngineMode mode)

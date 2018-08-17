@@ -35,6 +35,7 @@ int main(void)
 	while(true)
 	{
 		manager.process();
+
 //		bitSet(PORTB,1);
 	}
 }

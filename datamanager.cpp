@@ -3,7 +3,6 @@
 DataManager::DataManager(SPI *spi, int sampling_rate) : spi_(spi), sampling_rate_(sampling_rate)
 {
 	control_.init();
-	control_.setMode(Engine::ON);
 }
 
 void DataManager::process()

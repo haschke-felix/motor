@@ -88,14 +88,14 @@ void Control::process()
 	}
 #endif
 //	accelerate();
-//	if(++count_ == 100){
-//		pwm_ = getPedalSpeed();
-//		count_ = 0;
-//		if(pwm_ != current_pwm_){
-////			acceleration_counter_ = 1;
-//			engine_.setPWM(pwm_);
-//		}
-//	}
+	if(++count_ == 100){
+		pwm_ = getPedalSpeed();
+		count_ = 0;
+		if(pwm_ != current_pwm_){
+//			acceleration_counter_ = 1;
+			engine_.setPWM(pwm_);
+		}
+	}
 	engine_.process();
 }
 

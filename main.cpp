@@ -5,18 +5,18 @@
 
 
 
-//SPI spi(16);
-//DataManager manager(&spi, 0); // with sampling rate = 0, nether a transmission would be occur
+SPI spi(16);
+DataManager manager(&spi, 0); // with sampling rate = 0, nether a transmission would be occur
 
-//ISR(SPI_STC_vect){
-//	if(spi.byteFinished()){ // transmission finished
-//		manager.transmissionFinished();
-//	}
-//}
+ISR(SPI_STC_vect){
+	if(spi.byteFinished()){ // transmission finished
+		manager.transmissionFinished();
+	}
+}
 
 int main(void)
 {
-#if 1
+#if 0
 	TCCR1A|=(1<<WGM10);
 	TCCR1A |= (1 << COM1A1);
 	TCCR1B |= (1 << CS10)|(1 << CS10);
@@ -34,7 +34,8 @@ int main(void)
 #endif
 	while(true)
 	{
-//		manager.process();
+		manager.process();
+//		bitSet(PORTB,1);
 	}
 }
 

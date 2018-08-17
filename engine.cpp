@@ -352,6 +352,10 @@ byte Engine::getPWM()
 
 void Engine::setMode(Engine::EngineMode mode)
 {
+//	if(mode == OFF){
+//		bitSet(DDRB,0);
+//		bitSet(PORTB,0);
+//	}
 	if(in_process_){
 		new_new_settings_.mode_ = mode;
 		if(!new_new_used_){

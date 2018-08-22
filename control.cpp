@@ -18,30 +18,76 @@ void Control::init(){
 	charge2_.setPins(&PORTC,&DDRC,&PINC,4);
 	discharge1_.set();
 	discharge2_.set();
+//	discharge1_.input();
+//	discharge2_.input();
 	charge1_.set();
 	charge2_.set();
-//	engine_.setPWM(55);
+	//	engine_.setPWM(55);
 
 	//		engine_.setMode(Engine::ON);
 	//		engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
-//	  engine_.setPWM(50);
+	//	  engine_.setPWM(50);
 	engine_.setMode(Engine::ON);
-	engine_.setCP1ChargePWM(255);
-	engine_.setCP2ChargePWM(255);
-	//	engine_.setCP2Charge(true);
-	//	engine_.setCP1Charge(true);
-	//	engine_.setCP1(true);
-	//	engine_.setCP2(true);
-	//	bitSet(DDRD,1);
-	//	bitClear(PORTD,1);
+	//	engine_.setMode(Engine::CAPACITOR);
+	engine_.setCP1ChargePWM(30);
+	engine_.setCP2ChargePWM(100);
+	//		engine_.setCP2Charge(true);
+	engine_.setCP1Charge(true);
+	engine_.setCP2Charge(true);
+
+	engine_.setCP1(true);
+	engine_.setCP2(true);
+	//		bitSet(DDRD,0);
+	//		bitClear(PORTD,0);
 }
 
 void Control::process()
 {
+	static int counter = 0;
+
+	if(counter++ == 0xFFF){
+		counter = 0;
+
+		static bool boost_state1 =  false;
+		static bool boost_state2 =  false;
+
+		bool boost1 = discharge1_.read();
+		bool boost2 = discharge2_.read();
+		bool motor = false; // false is only motor, true is capacitor
+		static bool motor_state = false;
+
+		//	if(boost_state1 != boost1 || boost_state2 != boost2){
+		//		if((!boost1) || (!boost2)){
+		//			motor = true;
+		//		}
+		//		if(motor_state != motor){
+		//			if(motor_state){
+		//				engine_.setMode(Engine::CAPACITOR);
+		//			}
+		//			else{
+		//				engine_.setMode(Engine::ON);
+		//			}
+		//		}
+		//		else{
+		//			engine_.setCP1(!boost1);
+		//			engine_.setCP2(!boost2);
+		//		}
+		//	}
+		if(boost1 && boost2){
+			engine_.setMode(Engine::ON);
+//			engine_.setCP1Charge(false);
+		}
+		else{
+//			engine_.setCP1Charge(true);
+			engine_.setMode(Engine::CAPACITOR);
+			engine_.setCP1(!boost1);
+			engine_.setCP2(!boost2);
+		}
+//		bitToggle(DDRB,0);
+
+	}
+	bitWrite(DDRB,0,bitRead(PINC,2));
 #if 0
-	bool discharge1 =  discharge1_.read();
-	bool discharge2 =  discharge2_.read();
-	bool disabled = false;
 
 	if(discharge1 != discharge1_.current_state_){ // change
 		discharge1_.current_state_ = discharge1;
@@ -87,23 +133,16 @@ void Control::process()
 		engine_.setCP2Charge(!charge2);
 	}
 #endif
-//	accelerate();
+	//	accelerate();
+	engine_.process();
 	if(++count_ == 100){
 		pwm_ = getPedalSpeed();
-//		pwm_ = 0;
-		if(pwm_ == 0){
-			bitSet(DDRB,0);
-			bitSet(PORTB,0);
-		}
-		else
-			bitClear(PORTB,0);
 		count_ = 0;
 		if(pwm_ != current_pwm_){
-//			acceleration_counter_ = 1;
+			//			acceleration_counter_ = 1;
 			engine_.setPWM(pwm_);
 		}
 	}
-	engine_.process();
 }
 
 void Control::initADC()
@@ -125,10 +164,10 @@ void Control::accelerate()
 		}
 		else{
 			current_pwm_++;
-			if(current_pwm_ == pwm_){
-				// acceleration counter is already 0
+			// acceleration counter is already 0
 
-			}
+
+			if(current_pwm_ == pwm_){}
 			else{
 				int acceleration = 0xFF - current_pwm_ + 1;
 				acceleration_counter_ = acceleration;
@@ -159,13 +198,13 @@ byte Control::getPedalSpeed()
 	while ( (ADCSRA & _BV(ADSC)) );
 
 	/* Finally, we return the converted value to the calling function. */
-	return map(ADC,200,1023,0,255);
-//	return ADC/4;
+	//	return map(ADC,0,1023,0,255);
+	return ADC/4;
 }
 
 int Control::map(int x, int in_min, int in_max, int out_min, int out_max)
 {
-return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
 void Control::setMode(Engine::EngineMode mode)

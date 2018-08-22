@@ -288,7 +288,7 @@ void Engine::processing()
 		}
 		return;
 	}
-	counter_ = 10;
+	counter_ = 0x4FF;
 	++process_ptr_;
 }
 
@@ -314,12 +314,12 @@ void Engine::processPWM(byte pwm)
 
 void Engine::processPwmCp1(byte pwm)
 {
-	OCR0A = 0xFF - pwm;
+	OCR0B = 0xFF - pwm;
 }
 
 void Engine::processPwmCp2(byte pwm)
 {
-	OCR0B = 0xFF - pwm;
+	OCR0A = 0xFF - pwm;
 }
 
 void Engine::setPWM(byte pwm)

@@ -16,6 +16,7 @@ ISR(SPI_STC_vect){
 
 int main(void)
 {
+	bitSet(PORTB,0);
 #if 0
 	TCCR1A|=(1<<WGM10);
 	TCCR1A |= (1 << COM1A1);
@@ -37,6 +38,9 @@ int main(void)
 		manager.process();
 
 //		bitSet(PORTB,1);
+//		bitSet(DDRD,7);
+//		bitSet(PORTB,0);
+//		bitSet(DDRB,0);
 	}
 }
 

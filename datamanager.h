@@ -19,13 +19,13 @@ private:
 	void intIntoArray(int val, byte * ptr);
 	void evaluate();
 	struct Receive{
-		byte cp1_discharge;
-		byte cp1_charge;
+		bool cp1_discharge;
+		bool cp1_charge;
 		byte cp1_charge_pwm;
-		byte cp2_discharge;
-		byte cp2_charge;
+		bool cp2_discharge;
+		bool cp2_charge;
 		byte cp2_charge_pwm;
-		byte motor; // on or off
+		byte motor; // on or off or capacitor
 	} receive_, old_receive_;
 
 	struct Tranmitt{
@@ -34,7 +34,7 @@ private:
 		int rpm_should;
 		int motor_voltage_is;
 		int motor_voltage_should;
-		int motor_pwm;
+		byte motor_pwm;
 		int cp1_voltage;
 		int cp2_voltage;
 	} transmitt_;

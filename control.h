@@ -40,6 +40,6 @@ private:
 
 	 InputPin charge1_;
 	 InputPin charge2_;
-	 InputPin discharge1_;
-	 InputPin discharge2_;
+	 PortPin discharge1_;
+	 PortPin discharge2_;
 };

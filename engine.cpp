@@ -155,10 +155,36 @@ void Engine::startProcess()
 				processes_[process_counter++] = disableMosfet;
 				if(change_cp1)
 				{
-					processes_[process_counter++] = (new_settings_.cp1_ ?	enableCapacitor1 : disableCapacitor1);
+					if(new_new_settings_.cp1_){
+						if(new_settings_.cp1_charge_){
+							processes_[process_counter++] = disableChargeMosfet1;
+							processes_[process_counter++] = disableChargeCapacitor1;
+						}
+						processes_[process_counter++] = enableCapacitor1;
+					}
+					else{
+						if(new_settings_.cp1_charge_){
+							processes_[process_counter++] = enableChargeCapacitor1;
+							processes_[process_counter++] = enableChargeMosfet1;
+						}
+						processes_[process_counter++] = disableCapacitor1;
+					}
 				}
 				if(change_cp2){
-					processes_[process_counter++] = (new_settings_.cp2_ ?	enableCapacitor2 : disableCapacitor2);
+					if(new_new_settings_.cp2_){
+						if(new_settings_.cp2_charge_){
+							processes_[process_counter++] = disableChargeMosfet2;
+							processes_[process_counter++] = disableChargeCapacitor2;
+						}
+						processes_[process_counter++] = enableCapacitor2;
+					}
+					else{
+						if(new_settings_.cp2_charge_){
+							processes_[process_counter++] = enableChargeCapacitor2;
+							processes_[process_counter++] = enableChargeMosfet2;
+						}
+						processes_[process_counter++] = disableCapacitor2;
+					}
 				}
 				processes_[process_counter++] = enableMosfet;
 			}
@@ -177,13 +203,17 @@ void Engine::startProcess()
 				processes_[process_counter++] = enableMosfet;
 			}
 		}
-		else{
+		else{ // on or off
 			processes_[process_counter++] = disableMosfet;
 			if(current_settings_.mode_ == ON){
 				processes_[process_counter++] = disableRelay;
 			}
 			if(new_settings_.cp1_)
 			{
+				if(current_settings_.cp1_charge_){
+					processes_[process_counter++] = disableChargeMosfet1;
+					processes_[process_counter++] = disableChargeCapacitor1;
+				}
 				processes_[process_counter++] = enableCapacitor1;
 			}
 			else if(new_settings_.cp1_charge_){
@@ -192,6 +222,11 @@ void Engine::startProcess()
 			}
 			if(new_settings_.cp2_)
 			{
+				if(current_settings_.cp2_charge_){
+					processes_[process_counter++] = disableChargeMosfet2;
+					processes_[process_counter++] = disableChargeCapacitor2;
+
+				}
 				processes_[process_counter++] = enableCapacitor2;
 			}
 			else if(new_settings_.cp2_charge_){
@@ -352,10 +387,10 @@ byte Engine::getPWM()
 
 void Engine::setMode(Engine::EngineMode mode)
 {
-//	if(mode == OFF){
-//		bitSet(DDRB,0);
-//		bitSet(PORTB,0);
-//	}
+	//	if(mode == OFF){
+	//		bitSet(DDRB,0);
+	//		bitSet(PORTB,0);
+	//	}
 	if(in_process_){
 		new_new_settings_.mode_ = mode;
 		if(!new_new_used_){

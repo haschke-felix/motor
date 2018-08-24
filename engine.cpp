@@ -82,7 +82,7 @@ void Engine::startProcess()
 		else if(current_settings_.mode_ == OFF){
 			set = true;
 		}
-		if(current_settings_.cp1_charge_ != new_settings_.cp1_charge_){
+		if(current_settings_.cp1_charge_ != new_settings_.cp1_charge_ || set){
 			if(new_settings_.cp1_charge_){
 				processes_[process_counter++] = enableChargeCapacitor1;
 				processes_[process_counter++] = enableChargeMosfet1;
@@ -92,7 +92,7 @@ void Engine::startProcess()
 				processes_[process_counter++] = disableChargeMosfet1;
 			}
 		}
-		if(current_settings_.cp2_charge_ != new_settings_.cp2_charge_){
+		if(current_settings_.cp2_charge_ != new_settings_.cp2_charge_ || set){
 			if(new_settings_.cp2_charge_){
 				processes_[process_counter++] = enableChargeCapacitor2;
 				processes_[process_counter++] = enableChargeMosfet2;

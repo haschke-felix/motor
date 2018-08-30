@@ -60,7 +60,6 @@ void Control::process()
 	engine_.process();
 	if(++count_ == 100){
 		pwm_ = getPedalSpeed();
-		pwm_ = 50;
 		count_ = 0;
 		if(pwm_ != current_pwm_){
 			engine_.setPWM(pwm_);
@@ -112,14 +111,14 @@ byte Control::getPedalSpeed()
 	int value = ADC;
 
 	if(value < 200){
-		return 0;
+		return 1;
 	}
-	if(value > 900)
+	if(value > 900){
 		return 255;
+	}
 	else{
 		return (value - 200) * 0.364285714;
 	}
-//	return value / 4;
 }
 
 int Control::map(int x, int in_min, int in_max, int out_min, int out_max)

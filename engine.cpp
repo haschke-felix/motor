@@ -43,7 +43,7 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2
 	cp2_.output();
 
 	initPWM();
-	processPWM(55);
+	processPWM(0);
 }
 
 
@@ -196,8 +196,6 @@ void Engine::startProcess()
 					processes_[process_counter++] = (new_settings_.cp1_charge_ ?	enableChargeCapacitor1 : disableChargeCapacitor1);
 				}
 				if(change_cp2_charge){
-					bitSet(DDRC,4);
-					bitSet(PORTC,4);
 					processes_[process_counter++] = (new_settings_.cp2_charge_ ?	enableChargeCapacitor2 : disableChargeCapacitor2);
 				}
 				processes_[process_counter++] = enableMosfet;
@@ -323,7 +321,7 @@ void Engine::processing()
 		}
 		return;
 	}
-	counter_ = 0x4FF;
+	counter_ = 0xFF;
 	++process_ptr_;
 }
 

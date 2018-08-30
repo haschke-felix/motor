@@ -9,9 +9,7 @@ void Control::init(){
 	             PortPins::set(&PORTD,&DDRD,0),PortPins::set(&PORTD,&DDRD,1),
 	             PortPins::set(&PORTD,&DDRD,2),PortPins::set(&PORTD,&DDRD,4),
 	             PortPins::set(&PORTD,&DDRD,5),PortPins::set(&PORTD,&DDRD,6));
-
 	initADC();
-
 	discharge1_.setPins(&PORTC,&DDRC,&PINC,1);
 	discharge2_.setPins(&PORTC,&DDRC,&PINC,2);
 	charge1_.setPins(&PORTC,&DDRC,&PINC,3);
@@ -22,23 +20,15 @@ void Control::init(){
 //	discharge2_.input();
 	charge1_.set();
 	charge2_.set();
-	//	engine_.setPWM(55);
-
-	//		engine_.setMode(Engine::ON);
-	//		engine_.init(&PORTD,&DDRD,7,&PORTB,&DDRB,1);
-	//	  engine_.setPWM(50);
+	engine_.setPWM(0);
 	engine_.setMode(Engine::ON);
-	//	engine_.setMode(Engine::CAPACITOR);
-	engine_.setCP1ChargePWM(30);
-	engine_.setCP2ChargePWM(100);
-	//		engine_.setCP2Charge(true);
+	engine_.setCP1ChargePWM(15);
+	engine_.setCP2ChargePWM(15);
 	engine_.setCP1Charge(true);
 	engine_.setCP2Charge(true);
 
 	engine_.setCP1(true);
 	engine_.setCP2(true);
-	//		bitSet(DDRD,0);
-	//		bitClear(PORTD,0);
 }
 
 void Control::process()
@@ -55,24 +45,6 @@ void Control::process()
 		bool boost2 = discharge2_.read();
 		bool motor = false; // false is only motor, true is capacitor
 		static bool motor_state = false;
-
-		//	if(boost_state1 != boost1 || boost_state2 != boost2){
-		//		if((!boost1) || (!boost2)){
-		//			motor = true;
-		//		}
-		//		if(motor_state != motor){
-		//			if(motor_state){
-		//				engine_.setMode(Engine::CAPACITOR);
-		//			}
-		//			else{
-		//				engine_.setMode(Engine::ON);
-		//			}
-		//		}
-		//		else{
-		//			engine_.setCP1(!boost1);
-		//			engine_.setCP2(!boost2);
-		//		}
-		//	}
 		if(boost1 && boost2){
 			engine_.setMode(Engine::ON);
 //			engine_.setCP1Charge(false);
@@ -83,63 +55,14 @@ void Control::process()
 			engine_.setCP1(!boost1);
 			engine_.setCP2(!boost2);
 		}
-//		bitToggle(DDRB,0);
-
 	}
 	bitWrite(DDRB,0,bitRead(PINC,2));
-#if 0
-
-	if(discharge1 != discharge1_.current_state_){ // change
-		discharge1_.current_state_ = discharge1;
-		engine_.setCP1(!discharge1);
-		engine_.setPWM(current_pwm_);
-		if(discharge1){
-			disabled = true;
-		}
-		else{
-			engine_.setMode(Engine::CAPACITOR);
-		}
-	}
-
-	if(discharge2 != discharge2_.current_state_){ // change
-		discharge2_.current_state_ = discharge2;
-		engine_.setCP2(!discharge2);
-		engine_.setPWM(current_pwm_);
-
-		if(discharge2){
-			disabled = true;
-		}
-		else{
-			engine_.setMode(Engine::CAPACITOR);
-		}
-	}
-
-	if(disabled){
-		if(discharge1 && discharge2){
-			engine_.setMode(Engine::ON);
-		}
-	}
-
-	bool charge1 = charge1_.read();
-	bool charge2 = charge2_.read();
-
-	if(charge1 != charge1_.current_state_){ // change
-		charge1_.current_state_ = charge1;
-		engine_.setCP1Charge(!charge1);
-	}
-
-	if(charge2 != charge2_.current_state_){ // change
-		charge2_.current_state_ = charge2;
-		engine_.setCP2Charge(!charge2);
-	}
-#endif
-	//	accelerate();
 	engine_.process();
 	if(++count_ == 100){
 		pwm_ = getPedalSpeed();
+		pwm_ = 50;
 		count_ = 0;
 		if(pwm_ != current_pwm_){
-			//			acceleration_counter_ = 1;
 			engine_.setPWM(pwm_);
 		}
 	}
@@ -149,6 +72,9 @@ void Control::initADC()
 {
 	ADCSRA |= _BV(ADEN);
 	bitSet(ADMUX,REFS0);
+	for(int i = 0; i < 10; i++){
+		getPedalSpeed(); // initial read of adc
+	}
 }
 
 void Control::accelerate()
@@ -179,27 +105,21 @@ void Control::accelerate()
 
 byte Control::getPedalSpeed()
 {
-	/* adcx is the analog pin we want to use.  ADMUX's first few bits are
-		 * the binary representations of the numbers of the pins so we can
-		 * just 'OR' the pin's number with ADMUX to select that pin.
-		 * We first zero the four bits by setting ADMUX equal to its higher
-		 * four bits. */
 	ADMUX	&=	0xf0;
-	ADMUX	|=	5;  // <---------
-
-	/* This starts the conversion. */
+	ADMUX	|=	5;
 	ADCSRA |= _BV(ADSC);
-
-	/* This is an idle loop that just wait around until the conversion
-		 * is finished.  It constantly checks ADCSRA's ADSC bit, which we just
-		 * set above, to see if it is still set.  This bit is automatically
-		 * reset (zeroed) when the conversion is ready so if we do this in
-		 * a loop the loop will just go until the conversion is ready. */
 	while ( (ADCSRA & _BV(ADSC)) );
+	int value = ADC;
 
-	/* Finally, we return the converted value to the calling function. */
-	//	return map(ADC,0,1023,0,255);
-	return ADC/4;
+	if(value < 200){
+		return 0;
+	}
+	if(value > 900)
+		return 255;
+	else{
+		return (value - 200) * 0.364285714;
+	}
+//	return value / 4;
 }
 
 int Control::map(int x, int in_min, int in_max, int out_min, int out_max)

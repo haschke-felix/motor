@@ -5,15 +5,15 @@ Control::Control()
 }
 
 void Control::init(){
-	engine_.init(PortPins::set(&PORTD,&DDRD,7),PortPins::set(&PORTB,&DDRB,1),
-	             PortPins::set(&PORTD,&DDRD,0),PortPins::set(&PORTD,&DDRD,1),
-	             PortPins::set(&PORTD,&DDRD,2),PortPins::set(&PORTD,&DDRD,4),
-	             PortPins::set(&PORTD,&DDRD,5),PortPins::set(&PORTD,&DDRD,6));
+	engine_.init(PortPin::staticPortPin(PortPin::D,7),PortPin::staticPortPin(PortPin::B,1),
+	             PortPin::staticPortPin(PortPin::D,0),PortPin::staticPortPin(PortPin::D,1),
+	             PortPin::staticPortPin(PortPin::D,2),PortPin::staticPortPin(PortPin::D,4),
+	             PortPin::staticPortPin(PortPin::D,5),PortPin::staticPortPin(PortPin::D,6));
 	initADC();
-	discharge1_.setPins(&PORTC,&DDRC,&PINC,1);
-	discharge2_.setPins(&PORTC,&DDRC,&PINC,2);
-	charge1_.setPins(&PORTC,&DDRC,&PINC,3);
-	charge2_.setPins(&PORTC,&DDRC,&PINC,4);
+	discharge1_.setPins(PortPin::C,1);
+	discharge2_.setPins(PortPin::C,2);
+	charge1_.setPins(PortPin::C,3);
+	charge2_.setPins(PortPin::C,4);
 	discharge1_.set();
 	discharge2_.set();
 //	discharge1_.input();

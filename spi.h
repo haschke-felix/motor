@@ -14,5 +14,4 @@ private:
 	byte * buffer_;
 	byte current_byte_ = 0;
 	void initSPI();
-
 };

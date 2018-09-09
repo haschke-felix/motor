@@ -62,6 +62,7 @@ void Control::process()
 		count_ = 0;
 		if(pwm_ != current_pwm_){
 			Engine::setPWM(pwm_);
+			current_pwm_ = pwm_;
 		}
 	}
 }
@@ -107,16 +108,15 @@ byte Control::getPedalSpeed()
 	ADMUX	|=	5;
 	ADCSRA |= _BV(ADSC);
 	while ( (ADCSRA & _BV(ADSC)) );
-	int value = ADC;
-
-	if(value < 200){
-		return 1;
+	unsigned int value = ADC;
+	if(value < 220){
+		return 0;
 	}
-	if(value > 900){
+	else if(value > 900){
 		return 255;
 	}
 	else{
-		return (value - 200) * 0.364285714;
+		return (value - 220) * 0.375;
 	}
 }
 

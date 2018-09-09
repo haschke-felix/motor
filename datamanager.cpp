@@ -1,6 +1,6 @@
 #include "datamanager.h"
 
-DataManager::DataManager(SPI *spi, int sampling_rate) : spi_(spi), sampling_rate_(sampling_rate)
+DataManager::DataManager(SPI *spi, unsigned int sampling_count) : spi_(spi), sampling_count_(sampling_count)
 {
 	control_.init();
 }
@@ -8,14 +8,11 @@ DataManager::DataManager(SPI *spi, int sampling_rate) : spi_(spi), sampling_rate
 void DataManager::process()
 {
 	control_.process();
-	if(counter_ != 0){
-		counter_++;
-		if(counter_ == 0xFFFF){
-			// start new ransmission
-			counter_ = 0;
-			newTransmission();
-		}
-
+	if(sampling_count_ && ++counter_ >= sampling_count_ &&
+	      !spi_->transmitting()){
+		// transmit data
+		counter_ = 0;
+		newTransmission();
 	}
 }
 
@@ -27,7 +24,7 @@ union intByte{
 void DataManager::transmissionFinished()
 {
 	old_receive_ = receive_;
-	byte * data = spi_->getData();
+	const byte * data = spi_->getData();
 
 	receive_.cp1_discharge = data[0];
 	receive_.cp1_charge = data[1];
@@ -36,7 +33,6 @@ void DataManager::transmissionFinished()
 	receive_.cp2_charge = data[4];
 	receive_.cp2_charge_pwm = data[5];
 	receive_.motor = data[6];
-	counter_ = 1;
 	evaluate();
 }
 
@@ -88,14 +84,14 @@ void DataManager::evaluate()
 void DataManager::newTransmission()
 {
 	byte buffer [spi_->len()];
-	intIntoArray(transmitt_.v,&buffer[0]);
-	intIntoArray(transmitt_.rpm_is,&buffer[2]);
-	intIntoArray(transmitt_.rpm_should,&buffer[4]);
-	intIntoArray(transmitt_.motor_voltage_is,&buffer[6]);
-	intIntoArray(transmitt_.motor_voltage_should,&buffer[8]);
-	intIntoArray(transmitt_.motor_pwm,&buffer[10]);
-	intIntoArray(transmitt_.cp1_voltage,&buffer[12]);
-	intIntoArray(transmitt_.cp2_voltage,&buffer[14]);
+	intIntoArray(transmit_.v,&buffer[0]);
+	intIntoArray(transmit_.rpm_is,&buffer[2]);
+	intIntoArray(transmit_.rpm_should,&buffer[4]);
+	intIntoArray(transmit_.motor_voltage_is,&buffer[6]);
+	intIntoArray(transmit_.motor_voltage_should,&buffer[8]);
+	intIntoArray(transmit_.motor_pwm,&buffer[10]);
+	intIntoArray(transmit_.cp1_voltage,&buffer[12]);
+	intIntoArray(transmit_.cp2_voltage,&buffer[14]);
 
-	spi_->transmitt(buffer);
+	spi_->transmit(buffer);
 }

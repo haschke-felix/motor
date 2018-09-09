@@ -1,6 +1,4 @@
-#include"spi.h"
-
-byte current_byte_;
+#include "spi.h"
 
 SPI::SPI(byte len) : len_(len)
 {
@@ -10,38 +8,32 @@ SPI::SPI(byte len) : len_(len)
 
 bool SPI::byteFinished()
 {
-	byte input = SPDR;
-	current_byte_++;
-	if(current_byte_ + 1 == len_)
-		SPDR = 0;
-	else
+	byte input = SPDR; // received byte
+	if(++current_byte_ < len_) // transmit next byte?
 		SPDR = buffer_[current_byte_];
 	buffer_[current_byte_-1] = input;
-	if(current_byte_ == len_){
-		current_byte_ = 0;
-		return true;
-	}
-	return false;
+	return !transmitting();
 }
 
-
-byte *SPI::getData()
+const byte *SPI::getData() const
 {
 	return buffer_;
 }
 
-void SPI::transmitt(byte *data)
+void SPI::transmit(const byte *data)
 {
-	current_byte_ = 0;
-	for(int i = 0; i < len_; i++){
+	for(int i = 0; i < len_; ++i){
 		buffer_[i] = data[i];
 	}
-	SPDR = buffer_[0];
+	// start new transmission with first byte
+	current_byte_ = 0;
+	SPDR = buffer_[current_byte_];
 	return;
 }
+
 void SPI::initSPI(){
-	DDRB=(1<<PINB4);               //MISO as OUTPUT
-	SPCR=(1<<SPE)|(1<<SPIE);       //Enable SPI && interrupt enable bit
+	DDRB=(1<<PINB4);               // MISO as OUTPUT
+	SPCR=(1<<SPE)|(1<<SPIE);       // Enable SPI && interrupt enable bit
 	SPDR=0;
 	sei(); // interrupt enable
 }

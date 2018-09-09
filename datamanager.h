@@ -5,7 +5,7 @@
 class DataManager
 {
 public:
-	DataManager(SPI * spi, int taste_rate = 0xFFFF);
+	DataManager(SPI *spi, unsigned int sampling_count = 0);
 	void init();
 	void process();
 	void transmissionFinished();
@@ -28,7 +28,7 @@ private:
 		byte motor; // on or off or capacitor
 	} receive_, old_receive_;
 
-	struct Tranmitt{
+	struct Transmit{
 		int v;
 		int rpm_is;
 		int rpm_should;
@@ -37,11 +37,12 @@ private:
 		byte motor_pwm;
 		int cp1_voltage;
 		int cp2_voltage;
-	} transmitt_;
+	} transmit_;
 
 	Control control_;
-	int counter_ = 1;
-	const int sampling_rate_;
+	unsigned int counter_ = 0;
+	/// number of iterations to wait before next transmission, zero: off
+	const unsigned int sampling_count_;
 };
 
 

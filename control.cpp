@@ -1,5 +1,5 @@
 #include "control.h"
-Control::Control()
+Control::Control(): scale_pwm_(0.375), max_pwm_(255)
 {
 }
 
@@ -46,10 +46,20 @@ void Control::process()
 		static bool motor_state = false;
 		if(boost1 && boost2){
 			Engine::setMode(Engine::ON);
+			max_pwm_ = 255;
+			scale_pwm_ = 0.375;
 //			Engine::setCP1Charge(false);
 		}
 		else{
 //			Engine::setCP1Charge(true);
+			if(max_boost_pwm_ < 233){
+				max_pwm_ = 233;
+				scale_pwm_ = 0.342647059;
+			}
+			else{
+				max_pwm_ = max_boost_pwm_;
+				scale_pwm_ = max_boost_pwm_ / 680.0;
+			}
 			Engine::setMode(Engine::CAPACITOR);
 			Engine::setCP1(!boost1);
 			Engine::setCP2(!boost2);
@@ -113,10 +123,10 @@ byte Control::getPedalSpeed()
 		return 0;
 	}
 	else if(value > 900){
-		return 255;
+		return max_pwm_;
 	}
 	else{
-		return (value - 220) * 0.375;
+		return (value - 220) * scale_pwm_;
 	}
 }
 

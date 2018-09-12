@@ -1,39 +1,71 @@
 #include "spi.h"
 
-SPI::SPI(byte len) : len_(len)
+#define STATIC_ASSERT(COND,MSG) \
+	typedef char static_assertion_##MSG[(COND)?1:-1]
+
+SPI::SPI(byte send, byte recv) : num_send_(send), num_recv_(recv)
 {
-	buffer_ = static_cast<byte*>(malloc(len_));
+	STATIC_ASSERT(recv <= send, invalid_buffer_sizes);
+
+	send_buffer_ = static_cast<byte*>(malloc(num_send_));
+	pending_buffer_ = static_cast<byte*>(malloc(num_send_));
+	recv_buffer_ = static_cast<byte*>(malloc(num_recv_));
+	for (byte i = 0; i < num_send_; ++i)
+		send_buffer_[i] = 0;
+
 	initSPI();
 }
 
-bool SPI::byteFinished()
+// triggered by SPI interrupt
+// return NULL if transmission still active
+// return received data after successful transmission
+const byte* SPI::byteFinished()
 {
-	byte input = SPDR; // received byte
-	if(++current_byte_ < len_) // transmit next byte?
-		SPDR = buffer_[current_byte_];
-	buffer_[current_byte_-1] = input;
-	return !transmitting();
-}
-
-const byte *SPI::getData() const
-{
-	return buffer_;
-}
-
-void SPI::transmit(const byte *data)
-{
-	for(int i = 0; i < len_; ++i){
-		buffer_[i] = data[i];
+	byte received = SPDR; // received byte
+	if (current_byte_ == 0) {
+		if (received != 0xAC) { // expect 0xAC from master
+			// otherwise wait for start byte, send 0xFF
+			SPDR = 0xFF;
+			return NULL;
+		}
 	}
-	// start new transmission with first byte
-	current_byte_ = 0;
-	SPDR = buffer_[current_byte_];
-	return;
+	// don't store initial 0xAC byte
+	if (current_byte_ > 0 && current_byte_ <= num_recv_)
+		recv_buffer_[current_byte_-1] = received;
+
+	if (current_byte_ < num_send_) // transmit next byte?
+		SPDR = send_buffer_[current_byte_];
+	else
+		SPDR = 0;
+
+	if (++current_byte_ < num_send_)
+		return NULL; // not yet done
+
+	// transmission finished
+	current_byte_ = 0; // start over in next cycle
+
+	if (pending_) { // swap send with pending buffer?
+		byte* tmp = send_buffer_;
+		send_buffer_ = pending_buffer_;
+		pending_buffer_ = tmp;
+		pending_ = false;
+	}
+	return recv_buffer_;
+}
+
+void SPI::setSendBuffer(const byte *data)
+{
+	pending_ = false; // prevent interrupt handler from switching
+	for(int i = 0; i < num_send_; i++){
+		pending_buffer_[i] = data[i];
+	}
+	pending_ = true; // trigger buffer switching in interrupt handler
 }
 
 void SPI::initSPI(){
-	DDRB=(1<<PINB4);               // MISO as OUTPUT
-	SPCR=(1<<SPE)|(1<<SPIE);       // Enable SPI && interrupt enable bit
-	SPDR=0;
-	sei(); // interrupt enable
+	// MISO output
+	DDRB |= (1<<PB4);
+
+	// SPI enable interrupts
+	SPCR |= (1<<SPE) | (1<<SPIE);
 }

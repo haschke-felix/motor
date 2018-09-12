@@ -337,7 +337,6 @@ void Engine::initPWM()
 	TCCR0B |= (1 << CS01);
 	OCR0B = 0xFF;
 	OCR0A = 0xFF;
-	sei();
 }
 
 void Engine::processPWM(byte pwm)

@@ -4,23 +4,24 @@
 #include "engine.h"
 #include "avr/wdt.h"
 
-SPI spi(16);
-DataManager manager(nullptr, 0);
+SPI spi(2 /* send */, 1 /* recv */);
+DataManager manager(&spi, 10);
 
 ISR(SPI_STC_vect){
-	if(spi.byteFinished()){ // transmission finished
-		manager.transmissionFinished();
-	}
+	const byte* received = spi.byteFinished();
+	if (received) // transmission finished
+		manager.receivedValues(received);
 }
 
 int main(void)
 {
-	wdt_enable(WDTO_120MS);
-	bitSet(PORTB,0);
+	wdt_enable(WDTO_250MS);
+	bitSet(PORTB, 0); // ???
+
+	sei();
 	while(true)
 	{
 		wdt_reset();
 		manager.process();
 	}
 }
-

@@ -3,19 +3,18 @@
 
 class SPI{
 public:
-	SPI(byte len);
+	SPI(byte send, byte recv);
 	/// method triggered when transmission of single byte was finished
-	bool byteFinished();
-	bool transmitting() const { return current_byte_ < len_; }
-	/// get receive buffer (after transmission finished)
-	const byte * getData() const;
-	/// start transmission of new data packet
-	void transmit(const byte *data);
-	byte len() const {return len_;}
+	const byte* byteFinished();
+	/// queue new data packet to answer
+	void setSendBuffer(const byte *data);
+	byte sendBufferSize() const {return num_send_;}
+	byte recvBufferSize() const {return num_recv_;}
 
 private:
-	const byte len_;
-	byte * buffer_;
-	byte current_byte_ = 0xFF;
+	const byte num_send_, num_recv_;
+	byte *send_buffer_, *pending_buffer_, *recv_buffer_;
+	byte current_byte_ = 0;
+	bool pending_ = false; // true if should switch buffers after next transmit cycle
 	void initSPI();
 };

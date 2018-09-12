@@ -67,13 +67,16 @@ void Control::process()
 	}
 	bitWrite(DDRB,0,bitRead(PINC,2));
 	Engine::process();
-	if(++count_ == 100){
+	if(++count_	% 10 == 0){
 		pwm_ = getPedalSpeed();
-		count_ = 0;
 		if(pwm_ != current_pwm_){
-			Engine::setPWM(pwm_);
 			current_pwm_ = pwm_;
+			Engine::setPWM(pwm_);
 		}
+	}
+	if(count_ == 1000){
+		Engine::setPWM(pwm_);
+		count_ = 0;
 	}
 }
 

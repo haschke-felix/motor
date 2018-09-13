@@ -15,7 +15,7 @@ ISR(SPI_STC_vect){
 
 int main(void)
 {
-	wdt_enable(WDTO_250MS);
+	wdt_enable(WDTO_120MS);
 	bitSet(PORTB, 0); // ???
 
 	sei();

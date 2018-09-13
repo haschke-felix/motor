@@ -7,7 +7,6 @@ DataManager::DataManager(SPI *spi, unsigned int sampling_count) : spi_(spi), upd
 
 void DataManager::process()
 {
-	control_.setMaxBoostPWM(receive_.max_boost_pwm);
 	control_.process();
 	if (update_count_ && ++counter_ >= update_count_) {
 		counter_ = 0;
@@ -23,6 +22,7 @@ union intByte{
 void DataManager::receivedValues(const byte *data)
 {
 	receive_.max_boost_pwm = data[0];
+	control_.setMaxBoostPWM(receive_.max_boost_pwm);
 }
 
 int DataManager::byteArrayToInt(byte *ptr)

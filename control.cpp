@@ -15,8 +15,6 @@ void Control::init(){
 	charge2_.setPins(PortPin::C,4);
 	discharge1_.set();
 	discharge2_.set();
-//	discharge1_.input();
-//	discharge2_.input();
 	charge1_.set();
 	charge2_.set();
 	Engine::setPWM(0);
@@ -42,16 +40,12 @@ void Control::process()
 
 		bool boost1 = discharge1_.read();
 		bool boost2 = discharge2_.read();
-		bool motor = false; // false is only motor, true is capacitor
-		static bool motor_state = false;
 		if(boost1 && boost2){
 			Engine::setMode(Engine::ON);
 			max_pwm_ = 255;
 			scale_pwm_ = 0.375;
-//			Engine::setCP1Charge(false);
 		}
 		else{
-//			Engine::setCP1Charge(true);
 			if(max_boost_pwm_ < 233){
 				max_pwm_ = 233;
 				scale_pwm_ = 0.342647059;

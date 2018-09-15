@@ -14,9 +14,9 @@ public:
 	void setMaxBoostPWM(byte pwm) {max_boost_pwm_ = pwm;}
 
 private:
-	int count_;
-	byte pwm_;
-	byte current_pwm_;
+	int count_ = 0;
+	byte pwm_ = 0;
+	byte current_pwm_ = 0;
 	byte max_boost_pwm_;
 	double scale_pwm_;
 	byte max_pwm_;

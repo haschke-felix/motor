@@ -9,16 +9,12 @@ public:
 	Control();
 	void init();
 	void process();
-	void writeEnginePWM();
 	void initADC();
-	void accelerate();
 	byte getPedalSpeed();
-	void setMaxBoostPWM(byte pwm){max_boost_pwm_ = pwm;}
-
+	void setMaxBoostPWM(byte pwm) {max_boost_pwm_ = pwm;}
 
 private:
 	int count_;
-	byte acceleration_counter_;
 	byte pwm_;
 	byte current_pwm_;
 	byte max_boost_pwm_;

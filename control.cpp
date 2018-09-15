@@ -83,32 +83,6 @@ void Control::initADC()
 	}
 }
 
-void Control::accelerate()
-{
-	if(acceleration_counter_ && --acceleration_counter_ == 0){
-		if(current_pwm_ == pwm_)
-		{
-			return;
-		}
-		if(current_pwm_ > pwm_)
-		{
-			current_pwm_ = pwm_;
-		}
-		else{
-			current_pwm_++;
-			// acceleration counter is already 0
-
-
-			if(current_pwm_ == pwm_){}
-			else{
-				int acceleration = 0xFF - current_pwm_ + 1;
-				acceleration_counter_ = acceleration;
-			}
-		}
-		Engine::setPWM(current_pwm_);
-	}
-}
-
 byte Control::getPedalSpeed()
 {
 	ADMUX	&=	0xf0;

@@ -28,6 +28,7 @@ void Control::init(){
 	Engine::setCP2(true);
 }
 
+#define MAX_PWM_INCREASE 5
 void Control::process()
 {
 	static int counter = 0;
@@ -63,8 +64,12 @@ void Control::process()
 	Engine::process();
 	if(++count_	% 10 == 0){
 		pwm_ = getPedalSpeed();
-		if(pwm_ != current_pwm_){
-			current_pwm_ = pwm_;
+		// limit pwm increase per cycle
+		if(pwm_ > last_pwm_ + MAX_PWM_INCREASE)
+			pwm_ = last_pwm_ + MAX_PWM_INCREASE;
+		// apply changes
+		if(pwm_ != last_pwm_){
+			last_pwm_ = pwm_;
 			Engine::setPWM(pwm_);
 		}
 	}

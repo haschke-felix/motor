@@ -16,7 +16,7 @@ public:
 private:
 	int count_ = 0;
 	byte pwm_ = 0;
-	byte current_pwm_ = 0;
+	byte last_pwm_ = 0;
 	byte max_boost_pwm_;
 	double scale_pwm_;
 	byte max_pwm_;

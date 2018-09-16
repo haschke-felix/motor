@@ -4,8 +4,8 @@
 #include "engine.h"
 #include "avr/wdt.h"
 
-SPI spi(2 /* send */, 1 /* recv */);
-DataManager manager(&spi, 10);
+// SPI spi(2 /* send */, 1 /* recv */);
+DataManager manager(nullptr, 0);
 
 ISR(SPI_STC_vect){
 	const byte* received = spi.byteFinished();

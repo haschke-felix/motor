@@ -1,6 +1,6 @@
 #include "datamanager.h"
 
-DataManager::DataManager(SPI *spi, unsigned int sampling_count) : spi_(spi), update_count_(sampling_count)
+DataManager::DataManager(SPI *spi, unsigned int update_count) : spi_(spi), update_count_(update_count)
 {
 	control_.init();
 }

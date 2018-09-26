@@ -5,7 +5,7 @@
 class DataManager
 {
 public:
-	DataManager(SPI *spi, unsigned int sampling_count = 0);
+    DataManager(SPI *spi, unsigned int update_count = 0);
 	void init();
 	void process();
 	void receivedValues(const byte *data);

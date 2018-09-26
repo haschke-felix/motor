@@ -8,9 +8,9 @@
 DataManager manager(nullptr, 0);
 
 ISR(SPI_STC_vect){
-	const byte* received = spi.byteFinished();
-	if (received) // transmission finished
-		manager.receivedValues(received);
+//	const byte* received = spi.byteFinished();
+//	if (received) // transmission finished
+//		manager.receivedValues(received);
 }
 
 int main(void)

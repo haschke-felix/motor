@@ -23,7 +23,7 @@ private:
 		byte max_boost_pwm;
 	} receive_;
 
-	Control control_;
+    Control control_;
 	unsigned int counter_ = 0;
 	/// number of iterations before updating send values
 	const unsigned int update_count_;

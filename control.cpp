@@ -33,7 +33,7 @@ void Control::process()
 {
 	static int counter = 0;
 
-	if(counter++ == 0xFFF){
+    if(counter++ == 0xFF){
 		counter = 0;
 
 		static bool boost_state1 =  false;
@@ -59,8 +59,8 @@ void Control::process()
 			Engine::setCP1(!boost1);
 			Engine::setCP2(!boost2);
 		}
+        bitWrite(DDRB,0,bitRead(PINC,2));
 	}
-	bitWrite(DDRB,0,bitRead(PINC,2));
 	Engine::process();
 	if(++count_	% 10 == 0){
 		pwm_ = getPedalSpeed();
@@ -94,15 +94,15 @@ byte Control::getPedalSpeed()
 	ADMUX	|=	5;
 	ADCSRA |= _BV(ADSC);
 	while ( (ADCSRA & _BV(ADSC)) );
-	unsigned int value = ADC;
-	if(value < 220){
+    unsigned int value = ADC;
+    if(value < 60){
 		return 0;
 	}
-	else if(value > 900){
-		return max_pwm_;
+    else if(value > 700){
+        return 255;
 	}
 	else{
-		return (value - 220) * scale_pwm_;
+        return (value - 60) * 0.3984375;
 	}
 }
 

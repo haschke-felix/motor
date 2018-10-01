@@ -50,7 +50,7 @@ const byte* SPI::byteFinished()
 		pending_buffer_ = tmp;
 		pending_ = false;
 	}
-	return recv_buffer_;
+    return recv_buffer_;
 }
 
 void SPI::setSendBuffer(const byte *data)

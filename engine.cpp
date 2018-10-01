@@ -321,7 +321,7 @@ void Engine::processing()
 		}
 		return;
 	}
-	counter_ = 0xFF;
+    counter_ = 0x6FF;
 	++process_ptr_;
 }
 
@@ -329,12 +329,12 @@ void Engine::initPWM()
 {
 	TCCR1A|=(1<<WGM10);
 	TCCR1A |= (1 << COM1A1);
-    TCCR1B |= (1 << CS11);
+    TCCR1B |= (1 << CS11) | (1 << CS10); // clock divide 64
 	OCR1A = 0xFF; // out at OC1A
 
-	TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
+    TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
 	TCCR0A |= (1 << WGM01) | (1 << WGM00);
-    TCCR0B |= (1 << CS01);
+    TCCR0B |= (1 << CS01) | (1 << CS00);
 	OCR0B = 0xFF;
 	OCR0A = 0xFF;
 }

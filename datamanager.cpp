@@ -74,6 +74,6 @@ void DataManager::updateTransmitData()
 {
 	byte array[spi_->sendBufferSize()];
 	array[0] = control_.getPWM();
-    array[1] = control_.getMode() == Engine::CAPACITOR; // Boost activated
+	array[1] = control_.getMode() == Engine::CAPACITOR;
 	spi_->setSendBuffer(array);
 }

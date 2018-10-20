@@ -21,7 +21,7 @@ ISR(SPI_STC_vect){
 
 int main(void)
 {
-//    wdt_enable(WDTO_120MS); // watchdog enable
+    wdt_enable(WDTO_120MS); // watchdog enable
     bitSet(PORTB, 0); // led set high
 
     sei();

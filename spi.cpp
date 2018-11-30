@@ -63,9 +63,9 @@ void SPI::setSendBuffer(const byte *data)
 }
 
 void SPI::initSPI(){
-	// MISO output
-	DDRB |= (1<<PB4);
+    // MISO output
+    DDRB |= (1<<PB4);
 
 	// SPI enable interrupts
-	SPCR |= (1<<SPE) | (1<<SPIE);
+    SPCR |= (1<<SPE) | (1<<SPIE);
 }

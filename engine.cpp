@@ -2,21 +2,16 @@
 
 Engine::Engine()
 {
-
 }
 
-void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2, PortPin cp1_charge, PortPin cp2_charge,PortPin cp1_charge_mosfet, PortPin cp2_charge_mosfet)
+void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin charge_relay, PortPin charge_mosfet)
 {
 	// charge mosfet pwm pin declaration
 	motor_vcc_ = motor_vcc;
 	motor_pwm_ = motor_pwm;
 
-	cp1_ = cp1;
-	cp2_ = cp2;
-	cp1_charge_ = cp1_charge;
-	cp2_charge_ = cp2_charge;
-	cp1_charge_mosfet_ = cp1_charge_mosfet;
-	cp2_charge_mosfet_ = cp2_charge_mosfet;
+	charge_relay_ = charge_relay;
+	charge_mosfet_ = charge_mosfet;
 
 	// init mosfet pins
 	motor_pwm_.set();
@@ -26,37 +21,27 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin cp1, PortPin cp2
 	motor_vcc_.set();
 	motor_vcc_.output();
 
-	cp1_charge_mosfet_.output();
-	cp2_charge_mosfet_.output();
-
-	cp1_charge_.set();
-	cp1_charge_.output();
-
-	cp2_charge_.set();
-	cp2_charge_.output();
+	charge_mosfet_.output();
 
 	// init Capacitors Pins
-	cp1_.set();
-	cp1_.output();
-
-	cp2_.set();
-	cp2_.output();
+	charge_relay_.set();
+	charge_relay_.output();
 
 	initPWM();
 	processPWM(0);
 }
 
-
 void Engine::process()
 {
-	if(in_process_)
+	if (in_process_)
 	{
-		if(*process_ptr_ == START)
+		if (*process_ptr_ == START)
 		{
-			startProcess();
+			initProcess();
 		}
-		else{
-			if(counter_ && --counter_ == 0)
+		else
+		{
+			if (counter_ && --counter_ == 0)
 			{
 				processing();
 			}
@@ -64,173 +49,64 @@ void Engine::process()
 	}
 }
 
-void Engine::startProcess()
+void Engine::initProcess()
 {
 	byte process_counter = 1;
 
 	// ********************************
-	if(new_settings_.mode_ == ON)
+	if (new_settings_.mode_ == ON)
 	{
-		bool set = false;
-		if(current_settings_.mode_ ==  CAPACITOR) // mode before was capacitor
+		// if before mode was capacitor, enable this function.
+		if (current_settings_.mode_ == CAPACITOR) // mode before was capacitor
 		{
 			processes_[process_counter++] = disableMosfet;
-			processes_[process_counter++] = disableCapacitor1;
-			processes_[process_counter++] = disableCapacitor2;
-			set = true;
+			processes_[process_counter++] = disableCapacitor;
+			processes_[process_counter++] = enableRelay;
 		}
-		else if(current_settings_.mode_ == OFF){
-			set = true;
+
+		// charging changed or enabled
+		if (current_settings_.charge_ != new_settings_.charge_ || current_settings_.mode_ == OFF)
+		{
+			processes_[process_counter++] = (new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
 		}
-		if(current_settings_.cp1_charge_ != new_settings_.cp1_charge_ || set){
-			if(new_settings_.cp1_charge_){
-				processes_[process_counter++] = enableChargeCapacitor1;
-				processes_[process_counter++] = enableChargeMosfet1;
-			}
-			else{
-				processes_[process_counter++] = disableChargeCapacitor1;
-				processes_[process_counter++] = disableChargeMosfet1;
-			}
-		}
-		if(current_settings_.cp2_charge_ != new_settings_.cp2_charge_ || set){
-			if(new_settings_.cp2_charge_){
-				processes_[process_counter++] = enableChargeCapacitor2;
-				processes_[process_counter++] = enableChargeMosfet2;
-			}
-			else{
-				processes_[process_counter++] = disableChargeCapacitor2;
-				processes_[process_counter++] = disableChargeMosfet2;
-			}
-		}
-		if(set){
+
+		if (current_settings_.mode_ != ON)
+		{
 			processes_[process_counter++] = enableRelay;
 			processes_[process_counter++] = enableMosfet;
 		}
 	}
 	// ********************************
-	else if(new_settings_.mode_ == OFF)
+	else if (new_settings_.mode_ == OFF)
 	{
-		if(current_settings_.mode_ != OFF)
+		if (current_settings_.mode_ != OFF)
 		{
 			processes_[process_counter++] = disableMosfet;
 			processes_[process_counter++] = disableRelay;
-			if(current_settings_.mode_ == CAPACITOR)
+			if (current_settings_.mode_ == CAPACITOR)
 			{
-				processes_[process_counter++] = disableCapacitor1;
-				processes_[process_counter++] = disableCapacitor2;
+				processes_[process_counter++] = disableCapacitor;
 			}
 		}
 		// charge capacitor settings
-		if(current_settings_.cp1_charge_ != new_settings_.cp1_charge_){
-			if(new_settings_.cp1_charge_){
-				processes_[process_counter++] = enableChargeCapacitor1;
-				processes_[process_counter++] = enableChargeMosfet1;
-			}
-			else{
-				processes_[process_counter++] = disableChargeCapacitor1;
-				processes_[process_counter++] = disableChargeMosfet1;
-			}
-		}
-		if(current_settings_.cp2_charge_ != new_settings_.cp2_charge_){
-			if(new_settings_.cp2_charge_){
-				processes_[process_counter++] = enableChargeCapacitor2;
-				processes_[process_counter++] = enableChargeMosfet2;
-			}
-			else{
-				processes_[process_counter++] = disableChargeCapacitor2;
-				processes_[process_counter++] = disableChargeMosfet2;
-			}
+		if (current_settings_.charge_ != new_settings_.charge_)
+		{
+			processes_[process_counter++] = (new_new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
 		}
 	}
 
 	// *******************************
-	else if(new_settings_.mode_ == CAPACITOR)
+	else if (new_settings_.mode_ == CAPACITOR)
 	{
-		if(current_settings_.mode_ == CAPACITOR)
-		{
-			// check currently setted caps
-			bool change_cp1 = new_settings_.cp1_ ^ current_settings_.cp1_;
-			bool change_cp2 = new_settings_.cp2_ ^ current_settings_.cp2_;
-			if(change_cp1 || change_cp2){ // change
-				processes_[process_counter++] = disableMosfet;
-				if(change_cp1)
-				{
-					if(new_new_settings_.cp1_){
-						if(new_settings_.cp1_charge_){
-							processes_[process_counter++] = disableChargeMosfet1;
-							processes_[process_counter++] = disableChargeCapacitor1;
-						}
-						processes_[process_counter++] = enableCapacitor1;
-					}
-					else{
-						if(new_settings_.cp1_charge_){
-							processes_[process_counter++] = enableChargeCapacitor1;
-							processes_[process_counter++] = enableChargeMosfet1;
-						}
-						processes_[process_counter++] = disableCapacitor1;
-					}
-				}
-				if(change_cp2){
-					if(new_new_settings_.cp2_){
-						if(new_settings_.cp2_charge_){
-							processes_[process_counter++] = disableChargeMosfet2;
-							processes_[process_counter++] = disableChargeCapacitor2;
-						}
-						processes_[process_counter++] = enableCapacitor2;
-					}
-					else{
-						if(new_settings_.cp2_charge_){
-							processes_[process_counter++] = enableChargeCapacitor2;
-							processes_[process_counter++] = enableChargeMosfet2;
-						}
-						processes_[process_counter++] = disableCapacitor2;
-					}
-				}
-				processes_[process_counter++] = enableMosfet;
-			}
-			bool change_cp1_charge = (new_settings_.cp1_charge_ ^ current_settings_.cp1_charge_ || new_settings_.cp1_	^ current_settings_.cp1_ )&& new_settings_.cp1_charge_ ^ new_settings_.cp1_;
-			bool change_cp2_charge = (new_settings_.cp2_charge_ ^ current_settings_.cp2_charge_ || new_settings_.cp2_	^ current_settings_.cp2_ )&& new_settings_.cp2_charge_ ^ new_settings_.cp2_;
-			if(change_cp1_charge || change_cp2_charge){ // change
-				processes_[process_counter++] = disableMosfet;
-				if(change_cp1_charge){
-					processes_[process_counter++] = (new_settings_.cp1_charge_ ?	enableChargeCapacitor1 : disableChargeCapacitor1);
-				}
-				if(change_cp2_charge){
-					processes_[process_counter++] = (new_settings_.cp2_charge_ ?	enableChargeCapacitor2 : disableChargeCapacitor2);
-				}
-				processes_[process_counter++] = enableMosfet;
-			}
-		}
-		else{ // on or off
+		if (current_settings_.mode_ != CAPACITOR)
+		{ // on or off
 			processes_[process_counter++] = disableMosfet;
-			if(current_settings_.mode_ == ON){
+			if (current_settings_.mode_ == ON)
+			{
 				processes_[process_counter++] = disableRelay;
 			}
-			if(new_settings_.cp1_)
-			{
-				if(current_settings_.cp1_charge_){
-					processes_[process_counter++] = disableChargeMosfet1;
-					processes_[process_counter++] = disableChargeCapacitor1;
-				}
-				processes_[process_counter++] = enableCapacitor1;
-			}
-			else if(new_settings_.cp1_charge_){
-				processes_[process_counter++] = enableChargeCapacitor1;
-				processes_[process_counter++] = enableChargeMosfet1;
-			}
-			if(new_settings_.cp2_)
-			{
-				if(current_settings_.cp2_charge_){
-					processes_[process_counter++] = disableChargeMosfet2;
-					processes_[process_counter++] = disableChargeCapacitor2;
-
-				}
-				processes_[process_counter++] = enableCapacitor2;
-			}
-			else if(new_settings_.cp2_charge_){
-				processes_[process_counter++] = enableChargeCapacitor2;
-				processes_[process_counter++] = enableChargeMosfet2;
-			}
+			processes_[process_counter++] = disableChargeMosfet;
+			processes_[process_counter++] = enableCapacitor;
 			processes_[process_counter++] = enableMosfet;
 		}
 	}
@@ -242,101 +118,79 @@ void Engine::startProcess()
 
 void Engine::processing()
 {
-	if(*process_ptr_ == enableRelay){
+	if (*process_ptr_ == enableRelay)
+	{
 		motor_vcc_.clear();
 	}
-	else if(*process_ptr_ == disableRelay){
+	else if (*process_ptr_ == disableRelay)
+	{
 		motor_vcc_.set();
 	}
-	else if(*process_ptr_ ==  enableMosfet){
+	else if (*process_ptr_ == enableMosfet)
+	{
 		processPWM(new_settings_.pwm_);
 	}
-	else if(*process_ptr_ == disableMosfet){
+	else if (*process_ptr_ == disableMosfet)
+	{
 		processPWM(0);
 	}
 
-	else if(*process_ptr_ == enableCapacitor1){
-		cp1_.clear();
-	}
-	else if(*process_ptr_ == enableCapacitor2)
+	else if (*process_ptr_ == enableCapacitor)
 	{
-		cp2_.clear();
+		charge_relay_.set();
 	}
 
-	else if(*process_ptr_ == disableCapacitor1){
-		cp1_.set();
-	}
-	else if(*process_ptr_ == disableCapacitor2)
+	else if (*process_ptr_ == disableCapacitor)
 	{
-		cp2_.set();
-	}
-	else if(*process_ptr_ == disableChargeCapacitor1){
-		cp1_charge_.set();
-	}
-	else if(*process_ptr_ == disableChargeCapacitor2)
-	{
-		cp2_charge_.set();
-	}
-	else if(*process_ptr_ == enableChargeCapacitor1){
-		cp1_charge_.clear();
-	}
-	else if(*process_ptr_ == enableChargeCapacitor2)
-	{
-		cp2_charge_.clear();
-	}
-	else if(*process_ptr_ == enableChargeMosfet1)
-	{
-		processPwmCp1(new_settings_.cp1_charge_pwm_);
-	}
-	else if(*process_ptr_ == enableChargeMosfet2)
-	{
-		processPwmCp2(new_settings_.cp2_charge_pwm_);
-	}
-	else	if(*process_ptr_ == disableChargeMosfet1)
-	{
-		processPwmCp1(0);
-	}
-	else if(*process_ptr_ == disableChargeMosfet2)
-	{
-		processPwmCp2(0);
+		charge_relay_.clear();
 	}
 
-	else if(*process_ptr_ == END)
+	else if (*process_ptr_ == disableChargeMosfet)
 	{
-		for(byte i = 0; i < 12; i++)
+		processChargePwm(0);
+	}
+
+	else if (*process_ptr_ == END)
+	{
+		for (byte i = 0; i < 12; i++)
 		{
 			processes_[i] = END;
 		}
 		current_settings_ = new_settings_;
 		process_ptr_ = &processes_[0];
-		if(new_new_used_){
+		if (new_new_used_)
+		{
 			new_settings_ = new_new_settings_;
-			startProcess();
+			initProcess();
 			in_process_ = true;
 			new_new_used_ = false;
 			return;
 		}
-		else{
+		else
+		{
 			in_process_ = false;
 		}
 		return;
 	}
-    counter_ = 0x6FF;
+	counter_ = 0x6FF;
 	++process_ptr_;
 }
 
 void Engine::initPWM()
 {
-	TCCR1A|=(1<<WGM10);
-	TCCR1A |= (1 << COM1A1);
-    TCCR1B |= (1 << CS11) | (1 << CS10); // clock divide 64
-	OCR1A = 0xFF; // out at OC1A
+	TCCR1A |= (1 << WGM10);
+	TCCR1A |= (1 << COM1A1) | (1 << COM1B1);
+	TCCR1B |= (1 << CS11) | (1 << CS10); // clock divide 64
+	OCR1A = 0xFF;                        // out at OC1A
+	OCR1B = 0xFF;
 
-    TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
-	TCCR0A |= (1 << WGM01) | (1 << WGM00);
-    TCCR0B |= (1 << CS01) | (1 << CS00);
-	OCR0B = 0xFF;
-	OCR0A = 0xFF;
+	// need to sold the pin to the ss spi pin.
+
+	//	TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
+	//	TCCR0A |= (1 << WGM01) | (1 << WGM00);
+	//	TCCR0B |= (1 << CS01) | (1 << CS00);
+	//	OCR0B = 0xFF;
+	//	OCR0A = 0xFF;
 }
 
 void Engine::processPWM(byte pwm)
@@ -344,26 +198,30 @@ void Engine::processPWM(byte pwm)
 	OCR1A = 0xFF - pwm;
 }
 
-void Engine::processPwmCp1(byte pwm)
+void Engine::processChargePwm(byte pwm)
 {
-	OCR0B = 0xFF - pwm;
+	OCR1B = 0xFF - pwm;
 }
 
-void Engine::processPwmCp2(byte pwm)
-{
-	OCR0A = 0xFF - pwm;
-}
+// void Engine::processPwmCp2(byte pwm)
+//{
+//	OCR0A = 0xFF - pwm;
+//}
 
 void Engine::setPWM(byte pwm)
 {
-	if(!in_process_){
+	if (!in_process_)
+	{
 		current_settings_.pwm_ = pwm;
-		if(current_settings_.mode_ == ON || current_settings_.mode_ == CAPACITOR){
+		if (current_settings_.mode_ == ON || current_settings_.mode_ == CAPACITOR)
+		{
 			processPWM(current_settings_.pwm_);
 		}
 	}
-	else{
-		if(!new_new_used_){
+	else
+	{
+		if (!new_new_used_)
+		{
 			new_new_settings_ = new_settings_;
 			new_new_used_ = true;
 		}
@@ -373,8 +231,10 @@ void Engine::setPWM(byte pwm)
 
 byte Engine::getPWM()
 {
-	if(in_process_){
-		if(new_new_used_){
+	if (in_process_)
+	{
+		if (new_new_used_)
+		{
 			return new_new_settings_.pwm_;
 		}
 		return new_settings_.pwm_;
@@ -384,15 +244,17 @@ byte Engine::getPWM()
 
 void Engine::setMode(Engine::EngineMode mode)
 {
-	if(in_process_){
-		new_new_settings_.mode_ = mode;
-		if(!new_new_used_){
-			new_new_settings_.cp1_ = new_settings_.cp1_;
-			new_new_settings_.cp2_ = new_settings_.cp2_;
+	if (in_process_)
+	{
+		if (!new_new_used_)
+		{
+			new_new_settings_ = new_settings_;
 			new_new_used_ = true;
 		}
+		new_new_settings_.mode_ = mode;
 	}
-	else{
+	else
+	{
 		in_process_ = true;
 		new_settings_.mode_ = mode;
 		new_settings_.pwm_ = current_settings_.pwm_;
@@ -403,8 +265,10 @@ void Engine::setMode(Engine::EngineMode mode)
 
 Engine::EngineMode Engine::getMode()
 {
-	if(in_process_){
-		if(new_new_used_){
+	if (in_process_)
+	{
+		if (new_new_used_)
+		{
 			return new_new_settings_.mode_;
 		}
 		return new_settings_.mode_;
@@ -412,107 +276,85 @@ Engine::EngineMode Engine::getMode()
 	return current_settings_.mode_;
 }
 
+// void Engine::setCP1(bool state)
+//{
+//	// please set before set mode to capacitor!
+//	if (in_process_)
+//	{
+//		if (!new_new_used_)
+//		{
+//			new_new_settings_ = new_settings_;
+//			new_new_used_ = true;
+//		}
+//		new_new_settings_.cp1_ = state;
+//	}
+//	else
+//	{
+//		in_process_ = true;
+//		new_settings_.cp1_ = state;
+//		processes_[0] = START;
+//		process_ptr_ = &processes_[0];
+//	}
+//}
 
-void Engine::setCP1(bool state)
+// void Engine::setCP2(bool state)
+//{
+//	// please set before set mode to capacitor!
+//	if (in_process_)
+//	{
+//		if (!new_new_used_)
+//		{
+//			new_new_settings_ = new_settings_;
+//			new_new_used_ = true;
+//		}
+//		new_new_settings_.cp2_ = state;
+//	}
+//	else
+//	{
+//		in_process_ = true;
+//		new_settings_.cp2_ = state;
+//		processes_[0] = START;
+//		process_ptr_ = &processes_[0];
+//	}
+//}
+
+void Engine::setCharge(bool state)
 {
-	// please set before set mode to capacitor!
-	if(in_process_){
-		if(!new_new_used_){
+	if (in_process_)
+	{
+		if (!new_new_used_)
+		{
 			new_new_settings_ = new_settings_;
 			new_new_used_ = true;
 		}
-		new_new_settings_.cp1_ = state;
+		new_new_settings_.charge_ = state;
 	}
-	else{
+	else
+	{
 		in_process_ = true;
-		new_settings_.cp1_ = state;
+		new_settings_.charge_ = state;
 		processes_[0] = START;
 		process_ptr_ = &processes_[0];
 	}
 }
 
-void Engine::setCP2(bool state)
+void Engine::setChargePWM(byte pwm)
 {
-	// please set before set mode to capacitor!
-	if(in_process_){
-		if(!new_new_used_){
+	if (!in_process_)
+	{
+		current_settings_.charge_pwm_ = pwm;
+		if (current_settings_.mode_ != CAPACITOR)
+		{
+			processChargePwm(current_settings_.charge_pwm_);
+		}
+	}
+	else
+	{
+		if (!new_new_used_)
+		{
 			new_new_settings_ = new_settings_;
 			new_new_used_ = true;
 		}
-		new_new_settings_.cp2_ = state;
-	}
-	else{
-		in_process_ = true;
-		new_settings_.cp2_ = state;
-		processes_[0] = START;
-		process_ptr_ = &processes_[0];
-	}
-}
-
-void Engine::setCP1Charge(bool state)
-{
-	if(in_process_){
-		if(!new_new_used_){
-			new_new_settings_ = new_settings_;
-			new_new_used_ = true;
-		}
-		new_new_settings_.cp1_charge_ = state;
-	}
-	else{
-		in_process_ = true;
-		new_settings_.cp1_charge_ = state;
-		processes_[0] = START;
-		process_ptr_ = &processes_[0];
-	}
-}
-
-void Engine::setCP2Charge(bool state)
-{
-	if(in_process_){
-		if(!new_new_used_){
-			new_new_settings_ = new_settings_;
-			new_new_used_ = true;
-		}
-		new_new_settings_.cp2_charge_ = state;
-	}
-	else{
-		in_process_ = true;
-		new_settings_.cp2_charge_ = state;
-		processes_[0] = START;
-		process_ptr_ = &processes_[0];
-	}
-}
-
-void Engine::setCP1ChargePWM(byte pwm)
-{
-	if(!in_process_){
-		current_settings_.cp1_charge_pwm_ = pwm;
-		if(current_settings_.cp1_charge_ && ! current_settings_.cp1_){
-			processPwmCp1(current_settings_.cp1_charge_pwm_ = pwm);
-		}
-	}
-	else{
-		if(!new_new_used_){
-			new_new_settings_ = new_settings_;
-			new_new_used_ = true;
-		}
-		new_new_settings_.cp1_charge_pwm_ = pwm;
-	}
-}
-
-void Engine::setCP2ChargePWM(byte pwm)
-{
-	if(!in_process_){
-		current_settings_.cp2_charge_pwm_ = pwm;
-		if(current_settings_.cp2_charge_ && ! current_settings_.cp2_){
-			processPwmCp2(current_settings_.cp2_charge_pwm_ = pwm);
-		}
-	}
-	else{
-		if(!new_new_used_){
-			new_new_settings_ = new_settings_;
-			new_new_used_ = true;
-		}
-		new_new_settings_.cp2_charge_pwm_ = pwm;
+		new_new_settings_.charge_pwm_ = pwm;
 	}
 }

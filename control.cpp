@@ -29,23 +29,24 @@ void Control::init()
 #define MAX_PWM_INCREASE 5
 void Control::process()
 {
-	setMode(ON);
-	setPWM(255);
-	if (getPedalSpeed() > 500)
-	{
-		bitSet(DDRB, 0);
-	}
+//	setMode(ON);
+//	setPWM(getPedalSpeed());
+//	if (getPedalSpeed() > 500)
+//	{
+//		bitSet(DDRB, 0);
+//	}
 
-	else
-	{
-		bitClear(DDRB, 0);
-	}
-#if 0
+//	else
+//	{
+//		bitClear(DDRB, 0);
+//	}
+#if 1
 	static int counter = 0;
 
 	if (counter++ == 0xFF)
 	{
 		counter = 0;
+#if 0
 		if (!bitRead(PIND, 4))
 		{
 			Engine::setMode(Engine::CAPACITOR);
@@ -57,6 +58,7 @@ void Control::process()
 			Engine::setMode(Engine::ON);
 			bitSet(DDRB, 0);
 		}
+#endif
 		//		static bool boost_state1 =  false;
 		//		static bool boost_state2 =  false;
 
@@ -83,6 +85,7 @@ void Control::process()
 		//        bitWrite(DDRB,0,bitRead(PINC,2));
 	}
 	Engine::process();
+#if 1
 	if (++count_ % 10 == 0)
 	{
 		pwm_ = getPedalSpeed();
@@ -101,6 +104,7 @@ void Control::process()
 		Engine::setPWM(pwm_);
 		count_ = 0;
 	}
+#endif
 #endif
 }
 

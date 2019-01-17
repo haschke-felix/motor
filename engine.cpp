@@ -179,18 +179,15 @@ void Engine::processing()
 void Engine::initPWM()
 {
 	TCCR1A |= (1 << WGM10);
-	TCCR1A |= (1 << COM1A1) | (1 << COM1B1);
+	TCCR1A |= (1 << COM1A1);
 	TCCR1B |= (1 << CS11) | (1 << CS10); // clock divide 64
 	OCR1A = 0xFF;                        // out at OC1A
-	OCR1B = 0xFF;
 
-	// need to sold the pin to the ss spi pin.
-
-	//	TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
-	//	TCCR0A |= (1 << WGM01) | (1 << WGM00);
-	//	TCCR0B |= (1 << CS01) | (1 << CS00);
-	//	OCR0B = 0xFF;
-	//	OCR0A = 0xFF;
+	TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
+	TCCR0A |= (1 << WGM01) | (1 << WGM00);
+	TCCR0B |= (1 << CS01) | (1 << CS00);
+	OCR0B = 0xFF;
+	OCR0A = 0xFF;
 }
 
 void Engine::processPWM(byte pwm)
@@ -200,7 +197,7 @@ void Engine::processPWM(byte pwm)
 
 void Engine::processChargePwm(byte pwm)
 {
-	OCR1B = 0xFF - pwm;
+	OCR0B = 0xFF - pwm;
 }
 
 // void Engine::processPwmCp2(byte pwm)
@@ -210,6 +207,8 @@ void Engine::processChargePwm(byte pwm)
 
 void Engine::setPWM(byte pwm)
 {
+	processPWM(pwm);
+	return;
 	if (!in_process_)
 	{
 		current_settings_.pwm_ = pwm;

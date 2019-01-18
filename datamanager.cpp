@@ -3,6 +3,11 @@
 DataManager::DataManager(unsigned int update_count) : update_count_(update_count)
 {
 	control_.init();
+	PortPin(PortPin::C, 1).input();
+	PortPin(PortPin::C, 2).input();
+	PortPin(PortPin::C, 3).input();
+	PortPin(PortPin::C, 4).input();
+	PortPin(PortPin::C, 5).input();
 }
 
 void DataManager::process()

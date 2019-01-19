@@ -91,7 +91,7 @@ int DataManager::getADC(byte channel)
 void DataManager::transmitt()
 {
 	USB::print("PWM:");
-	USB::println(control_.getPWM());
+	USB::println(control_.getPedalSpeed());
 	USB::print("Boost:");
 	USB::println(control_.getMode() == Control::CAPACITOR);
 	USB::print("Battery-Voltage:");

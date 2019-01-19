@@ -5,11 +5,11 @@
 #include "spi.h"
 #include "usb.h"
 
-// FUSES = {
-//    LFUSE_DEFAULT /*| (byte)~FUSE_CKDIV8*/, // run at 8MHz
-//    HFUSE_DEFAULT,                          // protect EEPROM from erase
-//   EFUSE_DEFAULT,
-//};
+ FUSES = {
+    LFUSE_DEFAULT | (byte)~FUSE_CKDIV8, // run at 8MHz
+    HFUSE_DEFAULT,                          // protect EEPROM from erase
+   EFUSE_DEFAULT,
+};
 // SPI spi(2 /* send */, 1 /* recv */);
 DataManager manager(500);
 
@@ -18,18 +18,23 @@ DataManager manager(500);
 //	const byte *received = spi.byteFinished();
 //	if (received) // transmission finished
 //		manager.receivedValues(received);
-//}
+//}7
+
+void foo(){
+
+}
 
 int main(void)
 {
 	wdt_enable(WDTO_120MS); // watchdog enable
 	bitSet(PORTB, 0);       // led set high
-	USB::USBinit(nullptr, nullptr);
+	USB::USBinit(&foo, &foo);
 	sei();
 	USB::println("Startup at 9600 Baud");
 	while (true)
 	{
 		wdt_reset(); // watchdog reset
 		manager.process();
+//		USB::println("hi");
 	}
 }

@@ -5,7 +5,7 @@ Control::Control() : scale_pwm_(0.375), max_pwm_(255)
 
 void Control::init()
 {
-	Engine::init(PortPin(PortPin::D, 7), PortPin(PortPin::B, 1), PortPin(PortPin::D, 2), PortPin(PortPin::B, 2));
+	Engine::init(PortPin(PortPin::D, 7), PortPin(PortPin::B, 1), PortPin(PortPin::D, 2), PortPin(PortPin::D, 5));
 	initADC();
 	//	discharge1_.setPins(PortPin::C,1);
 	//	discharge2_.setPins(PortPin::C,2);
@@ -14,9 +14,10 @@ void Control::init()
 	//	discharge1_.set();
 	//	discharge2_.set();
 	//	charge1_.set();
-	//	charge2_.set();
-	Engine::setPWM(0);
+	//	charge2_.set()
 	Engine::setMode(Engine::ON);
+	setChargePWM(20);
+	setCharge(true);
 	//	Engine::setCP1ChargePWM(15);
 	//	Engine::setCP2ChargePWM(15);
 	//	Engine::setCP1Charge(true);
@@ -38,19 +39,17 @@ void Control::process()
 
 //	else
 //	{
-//		bitClear(DDRB, 0);
+		bitClear(DDRB, 0);
 //	}
 #if 1
-	static int counter = 0;
-
+   static int counter = 0;
 	if (counter++ == 0xFF)
 	{
 		counter = 0;
-#if 0
+#if 1
 		if (!bitRead(PIND, 4))
 		{
 			Engine::setMode(Engine::CAPACITOR);
-			bitClear(DDRB, 0);
 		}
 
 		else

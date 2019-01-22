@@ -28,6 +28,7 @@ int main(void)
 {
 	wdt_enable(WDTO_120MS); // watchdog enable
 	bitSet(PORTB, 0);       // led set high
+	bitSet(PORTD,4);
 	USB::USBinit(&foo, &foo);
 	sei();
 	USB::println("Startup at 9600 Baud");

@@ -17,11 +17,13 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin charge_relay, Po
 	motor_pwm_.set();
 	motor_pwm_.output();
 
+	charge_mosfet_.set();
+	charge_mosfet_.output();
+
+
 	// init relay pins
 	motor_vcc_.set();
 	motor_vcc_.output();
-
-	charge_mosfet_.output();
 
 	// init Capacitors Pins
 	charge_relay_.set();
@@ -29,6 +31,7 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin charge_relay, Po
 
 	initPWM();
 	processPWM(0);
+	processChargePwm(130);
 }
 
 void Engine::process()
@@ -60,8 +63,8 @@ void Engine::initProcess()
 		if (current_settings_.mode_ == CAPACITOR) // mode before was capacitor
 		{
 			processes_[process_counter++] = disableMosfet;
-			processes_[process_counter++] = disableCapacitor;
 			processes_[process_counter++] = enableRelay;
+			processes_[process_counter++] = disableCapacitor;
 		}
 
 		// charging changed or enabled
@@ -101,12 +104,13 @@ void Engine::initProcess()
 		if (current_settings_.mode_ != CAPACITOR)
 		{ // on or off
 			processes_[process_counter++] = disableMosfet;
+
+			processes_[process_counter++] = disableChargeMosfet;
+			processes_[process_counter++] = enableCapacitor;
 			if (current_settings_.mode_ == ON)
 			{
 				processes_[process_counter++] = disableRelay;
 			}
-			processes_[process_counter++] = disableChargeMosfet;
-			processes_[process_counter++] = enableCapacitor;
 			processes_[process_counter++] = enableMosfet;
 		}
 	}
@@ -137,12 +141,12 @@ void Engine::processing()
 
 	else if (*process_ptr_ == enableCapacitor)
 	{
-		charge_relay_.set();
+		charge_relay_.clear();
 	}
 
 	else if (*process_ptr_ == disableCapacitor)
 	{
-		charge_relay_.clear();
+		charge_relay_.set();
 	}
 
 	else if (*process_ptr_ == disableChargeMosfet)
@@ -172,7 +176,7 @@ void Engine::processing()
 		}
 		return;
 	}
-	counter_ = 0x6FF;
+	counter_ = 0xFF;
 	++process_ptr_;
 }
 
@@ -187,7 +191,7 @@ void Engine::initPWM()
 	TCCR0A |= (1 << WGM01) | (1 << WGM00);
 	TCCR0B |= (1 << CS01) | (1 << CS00);
 	OCR0B = 0xFF;
-	OCR0A = 0xFF;
+
 }
 
 void Engine::processPWM(byte pwm)
@@ -207,8 +211,6 @@ void Engine::processChargePwm(byte pwm)
 
 void Engine::setPWM(byte pwm)
 {
-	processPWM(pwm);
-	return;
 	if (!in_process_)
 	{
 		current_settings_.pwm_ = pwm;

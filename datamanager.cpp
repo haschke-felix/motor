@@ -90,18 +90,17 @@ int DataManager::getADC(byte channel)
 
 void DataManager::transmitt()
 {
-	USB::print("PWM:");
-	USB::println(control_.getPedalSpeed());
-	USB::print("Boost:");
-	USB::println(control_.getMode() == Control::CAPACITOR);
-	USB::print("Battery-Voltage:");
-	USB::println(getADC(1));
-	USB::print("Converter-Voltage:");
-	USB::println(getADC(2));
-	USB::print("Motor-Voltage:");
-	USB::println(getADC(3));
-	USB::print("Cp1+-Voltage:");
-	USB::println(getADC(4));
-	USB::print("Cp1--Voltage:");
+	USB::print(control_.getPedalSpeed());
+	USB::print(",");
+	USB::print(control_.getMode() == Control::CAPACITOR);
+	USB::print(",");
+	USB::print(getADC(1));
+	USB::print(",");
+	USB::print(getADC(2));
+	USB::print(",");
+	USB::print(getADC(3));
+	USB::print(",");
+	USB::print(getADC(4));
+	USB::print(",");
 	USB::println(getADC(5));
 }

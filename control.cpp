@@ -16,6 +16,7 @@ void Control::init()
 	//	charge1_.set();
 	//	charge2_.set()
 	Engine::setMode(Engine::ON);
+	Engine::setPWM(20);
 	setChargePWM(20);
 	setCharge(true);
 	//	Engine::setCP1ChargePWM(15);

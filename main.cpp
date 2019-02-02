@@ -17,9 +17,8 @@ DataManager manager(500);
 //{
 //	const byte *received = spi.byteFinished();
 //	if (received) // transmission finished
-//		manager.receivedValues(received);
-//}7
 
+//		manager.receivedValues(received);
 void foo(){
 
 }
@@ -32,10 +31,14 @@ int main(void)
 	USB::USBinit(&foo, &foo);
 	sei();
 	USB::println("Startup at 9600 Baud");
+	PORTC = 0;
+	DDRC = 0;
 	while (true)
 	{
 		wdt_reset(); // watchdog reset
 		manager.process();
+//		bitClear(PORTC,7);
+//		bitClear(DDRC,7);
 //		USB::println("hi");
 	}
 }

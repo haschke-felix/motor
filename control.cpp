@@ -1,4 +1,5 @@
 #include "control.h"
+#include "usb.h"
 Control::Control() : scale_pwm_(0.375), max_pwm_(255)
 {
 }
@@ -127,6 +128,7 @@ byte Control::getPedalSpeed()
 	while ((ADCSRA & _BV(ADSC)))
 		;
 	unsigned int value = ADC;
+//	USB::println(int(value));
 	if (value < 60)
 	{
 		return 0;

@@ -14,10 +14,10 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin charge_relay, Po
 	charge_mosfet_ = charge_mosfet;
 
 	// init mosfet pins
-	motor_pwm_.set();
+	motor_pwm_.clear();
 	motor_pwm_.output();
 
-	charge_mosfet_.set();
+	charge_mosfet_.clear();
 	charge_mosfet_.output();
 
 
@@ -187,10 +187,21 @@ void Engine::initPWM()
 	TCCR1B |= (1 << CS11) | (1 << CS10); // clock divide 64
 	OCR1A = 0xFF;                        // out at OC1A
 
-	TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
-	TCCR0A |= (1 << WGM01) | (1 << WGM00);
-	TCCR0B |= (1 << CS01) | (1 << CS00);
-	OCR0B = 0xFF;
+
+
+//	TCCR0A |= (1 << COM0A1) | (1 << COM0B1);
+//	TCCR0A |= (1 << WGM01) | (1 << WGM00);
+//	TCCR0B |= (1 << CS01) | (1 << CS00);
+
+//	TCCR0B = (1 << WGM02) | (0 << CS01) | (0 << CS00);
+
+	TCCR0A |= (1 << WGM00);
+	bitSet(TCCR0A, COM0B1);
+	TCCR0B |= (1 << CS01) | (1 << CS00); // clock divide 64
+
+	OCR0B = 0x33;
+
+
 
 }
 
@@ -201,7 +212,7 @@ void Engine::processPWM(byte pwm)
 
 void Engine::processChargePwm(byte pwm)
 {
-	OCR0B = 0xFF - pwm;
+//	OCR0B = 0xFF - pwm;
 }
 
 // void Engine::processPwmCp2(byte pwm)

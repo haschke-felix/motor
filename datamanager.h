@@ -2,22 +2,17 @@
 #include "avr.h"
 #include "control.h"
 #include "usb.h"
+#include "measurement.h"
 
 class DataManager
 {
 public:
 	DataManager(unsigned int update_count = 0);
-	void init();
 	void process();
 	void receivedValues(const byte *data);
 
 private:
-	//	int byteArrayToInt(byte *ptr);
-	//	void intToByteArray(int val, byte &b1, byte &b2);
-	//	void intIntoArray(int val, byte *ptr);
-
 	void transmitt();
-	//	void evaluate();
 
 	struct Receive
 	{
@@ -28,5 +23,4 @@ private:
 	unsigned int counter_ = 0;
 	/// number of iterations before updating send values
 	const unsigned int update_count_;
-	int getADC(byte channel);
 };

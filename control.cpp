@@ -114,21 +114,26 @@ byte Control::getPedalSpeed()
 		;
 	unsigned int value = ADC;
 //	USB::println(int(value));
-	if (value < 60)
-	{
-		return 0;
-	}
-	else if (value > 700)
+	if (value < 400)
 	{
 		return 255;
 	}
+	else if (value > 900)
+	{
+		return 0;
+	}
 	else
 	{
-		return (value - 60) * 0.3984375;
+		return 255-((value - 400) * 0.51);
 	}
 }
 
 int Control::map(int x, int in_min, int in_max, int out_min, int out_max)
 {
-	return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	int out =  (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	if(out < out_min)
+		return out_min;
+	else if(out > out_max)
+		return out_max;
+	return out;
 }

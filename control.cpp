@@ -8,25 +8,10 @@ void Control::init()
 {
 	Engine::init(PortPin(PortPin::D, 7), PortPin(PortPin::B, 1), PortPin(PortPin::D, 2), PortPin(PortPin::D, 5));
 	initADC();
-	//	discharge1_.setPins(PortPin::C,1);
-	//	discharge2_.setPins(PortPin::C,2);
-	//	charge1_.setPins(PortPin::C,3);
-	//	charge2_.setPins(PortPin::C,4);
-	//	discharge1_.set();
-	//	discharge2_.set();
-	//	charge1_.set();
-	//	charge2_.set()
 	Engine::setMode(Engine::ON);
 	Engine::setPWM(20);
-	setChargePWM(20);
 	setCharge(true);
-	//	Engine::setCP1ChargePWM(15);
-	//	Engine::setCP2ChargePWM(15);
-	//	Engine::setCP1Charge(true);
-	//	Engine::setCP2Charge(true);
-
-	//	Engine::setCP1(true);
-	//	Engine::setCP2(true);
+	setChargePWM(20);
 }
 
 #define MAX_PWM_INCREASE 5

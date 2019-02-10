@@ -9,7 +9,6 @@ void Control::init()
 	Engine::init(PortPin(PortPin::D, 7), PortPin(PortPin::B, 1), PortPin(PortPin::D, 2), PortPin(PortPin::D, 5));
 	initADC();
 	Engine::setMode(Engine::ON);
-	Engine::setPWM(20);
 	setCharge(true);
 	setChargePWM(20);
 }

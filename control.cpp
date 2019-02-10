@@ -1,5 +1,7 @@
 #include "control.h"
 #include "usb.h"
+#include "adc.h"
+
 Control::Control() : scale_pwm_(0.375), max_pwm_(255)
 {
 }
@@ -7,7 +9,7 @@ Control::Control() : scale_pwm_(0.375), max_pwm_(255)
 void Control::init()
 {
 	Engine::init(PortPin(PortPin::D, 7), PortPin(PortPin::B, 1), PortPin(PortPin::D, 2), PortPin(PortPin::D, 5));
-	initADC();
+	ADC_Init();
 	Engine::setMode(Engine::ON);
 	setCharge(true);
 	setChargePWM(40);
@@ -93,26 +95,10 @@ void Control::process()
 #endif
 }
 
-void Control::initADC()
-{
-	ADCSRA |= _BV(ADEN);
-	bitSet(ADMUX, REFS0);
-	sei();
-	for (int i = 0; i < 10; i++)
-	{
-		getPedalSpeed(); // initial read of adc
-	}
-}
 
 byte Control::getPedalSpeed()
 {
-	ADMUX &= 0xf0;
-	//	ADMUX |= 5;
-	ADCSRA |= _BV(ADSC);
-	while ((ADCSRA & _BV(ADSC)))
-		;
-	unsigned int value = ADC;
-//	USB::println(int(value));
+	unsigned int value = ADC_Read(0);
 	if (value < 400)
 	{
 		return 255;

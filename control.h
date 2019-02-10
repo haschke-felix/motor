@@ -9,7 +9,6 @@ public:
 	Control();
 	void init();
 	void process();
-	void initADC();
 	byte getPedalSpeed();
 	void setMaxBoostPWM(byte pwm) {max_boost_pwm_ = pwm;}
 

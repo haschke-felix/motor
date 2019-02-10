@@ -1,19 +1,40 @@
 #pragma once
+#include "adc.h"
+#include "avr.h"
+#include "list.h"
+
 class Measurement
 {
 public:
-    static void measure();
-    static int getMotorVoltage();
-    static int getMotorInputVoltage();
-    static int get24VVoltage();
-    static int getCp1Voltage();
-    static int getcp2Voltage();
-    static int getMotorCurrent();
-private :
-    static int mv_motor;
-    static int mv_motor_input;
-    static int mv_24V;
-    static int mv_cp1;
-    static int mv_cp2;
-    static int a_motor;
+	static Measurement &instance();
+	void process();
+
+	void measure();
+	unsigned int motorVoltage();
+	unsigned int batteryVoltage();
+	unsigned int converterVoltage();
+	unsigned int CapacitorPlus();
+	unsigned int CapacitorMinus();
+	unsigned int CapacitorVoltage();
+
+private:
+	Measurement(); // private constructor for singleton
+	static Measurement instance_;
+
+	class Value
+	{
+	public:
+		Value(const byte adc_port);
+		void process();
+		unsigned int value();
+
+	private:
+		const byte adc_port_;
+		List<unsigned int> average_buffer_;
+	};
+	Value battery_;
+	Value converter_;
+	Value motor_;
+	Value capacitor_plus_;
+	Value capacitor_minus_;
 };

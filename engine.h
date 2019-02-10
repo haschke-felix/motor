@@ -39,9 +39,9 @@ private:
 	void initProcess();
 	void processing();
 
-	void processPWM(byte pwm);
+	void processPWM(const byte pwm);
 	//	void processPwmCp2(byte pwm);
-	void processChargePwm(byte pwm);
+	void processChargePwm(const byte pwm);
 
 	enum Process : byte
 	{

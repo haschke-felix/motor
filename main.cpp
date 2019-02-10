@@ -10,15 +10,9 @@
     HFUSE_DEFAULT,                          // protect EEPROM from erase
    EFUSE_DEFAULT,
 };
-// SPI spi(2 /* send */, 1 /* recv */);
+
 DataManager manager(500);
 
-// ISR(SPI_STC_vect)
-//{
-//	const byte *received = spi.byteFinished();
-//	if (received) // transmission finished
-
-//		manager.receivedValues(received);
 void foo(){
 
 }
@@ -37,8 +31,5 @@ int main(void)
 	{
 		wdt_reset(); // watchdog reset
 		manager.process();
-//		bitClear(PORTC,7);
-//		bitClear(DDRC,7);
-//		USB::println("hi");
 	}
 }

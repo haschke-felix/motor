@@ -139,17 +139,19 @@ void DataManager::transmitt()
 {
 	PORTC = 0;
 	DDRC = 0;
+	USB::print(int(ADC_Read(0)));
+	USB::print(",");
 	USB::print(control_.getPedalSpeed());
 	USB::print(",");
 	USB::print(control_.getMode() == Control::CAPACITOR);
 	USB::print(", ADC1");
-	USB::print(int(ADC_Read(1)));
+	USB::print(int(ADC_Read(1))); // 24V
 	USB::print(",");
-	USB::print(int(ADC_Read(2)));
+	USB::print(int(ADC_Read(2))); // 35V
 	USB::print(",");
-	USB::print(int(ADC_Read(3)));
+	USB::print(int(ADC_Read(3))); // Engine Voltage
 	USB::print(",");
-	USB::print(int(ADC_Read(4)));
+	USB::print(int(ADC_Read(4))); // cp +
 	USB::print(",");
-	USB::println(int(ADC_Read(5)));
+	USB::println(int(ADC_Read(5))); // cp -
 }

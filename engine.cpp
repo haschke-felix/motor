@@ -67,7 +67,7 @@ void Engine::initProcess()
 		}
 
 		// charging changed or enabled
-		if (current_settings_.charge_ != new_settings_.charge_ || current_settings_.mode_ == OFF)
+		if (current_settings_.charge_ != new_settings_.charge_ || current_settings_.mode_ != ON)
 		{
 			processes_[process_counter++] = (new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
 		}

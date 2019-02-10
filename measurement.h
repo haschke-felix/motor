@@ -10,7 +10,7 @@ public:
 	void process();
 
 	void measure();
-	unsigned int motorVoltage();
+	unsigned int engineVoltage();
 	unsigned int batteryVoltage();
 	unsigned int converterVoltage();
 	unsigned int CapacitorPlus();
@@ -34,7 +34,7 @@ private:
 	};
 	Value battery_;
 	Value converter_;
-	Value motor_;
+	Value engine_;
 	Value capacitor_plus_;
 	Value capacitor_minus_;
 };

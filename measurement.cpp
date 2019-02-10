@@ -1,5 +1,6 @@
 #include "measurement.h"
 #include "usb.h"
+#include "Vportpin.h"
 
 #define SAMPLES 5
 #if SAMPLES <= 0
@@ -7,9 +8,13 @@
 #define SAMPLES 1
 #endif
 
-Measurement::Measurement() : battery_(1), converter_(2), motor_(3), capacitor_plus_(4), capacitor_minus_(5)
+Measurement::Measurement() : battery_(1), converter_(2), engine_(3), capacitor_plus_(4), capacitor_minus_(5)
 {
-
+	PortPin(PortPin::C, 1).input();
+	PortPin(PortPin::C, 2).input();
+	PortPin(PortPin::C, 3).input();
+	PortPin(PortPin::C, 4).input();
+	PortPin(PortPin::C, 5).input();
 }
 
 Measurement Measurement::instance_;
@@ -22,14 +27,14 @@ void Measurement::process()
 {
 	battery_.process();
 	converter_.process();
-	motor_.process();
+	engine_.process();
 	capacitor_minus_.process();
 	capacitor_plus_.process();
 }
 
-unsigned int Measurement::motorVoltage()
+unsigned int Measurement::engineVoltage()
 {
-	return motor_.value();
+	return engine_.value();
 }
 
 unsigned int Measurement::batteryVoltage()

@@ -20,7 +20,6 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin charge_relay, Po
 	charge_mosfet_.clear();
 	charge_mosfet_.output();
 
-
 	// init relay pins
 	motor_vcc_.set();
 	motor_vcc_.output();
@@ -152,6 +151,11 @@ void Engine::processing()
 	else if (*process_ptr_ == disableChargeMosfet)
 	{
 		processChargePwm(0);
+	}
+
+	else if (*process_ptr_ == enableChargeMosfet)
+	{
+		processChargePwm(new_settings_.charge_pwm_);
 	}
 
 	else if (*process_ptr_ == END)

@@ -11,7 +11,7 @@
    EFUSE_DEFAULT,
 };
 
-DataManager manager(500);
+DataManager manager(100);
 
 void foo(){
 

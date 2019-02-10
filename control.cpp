@@ -10,7 +10,7 @@ void Control::init()
 	initADC();
 	Engine::setMode(Engine::ON);
 	setCharge(true);
-	setChargePWM(20);
+	setChargePWM(40);
 }
 
 #define MAX_PWM_INCREASE 5

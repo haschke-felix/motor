@@ -9,12 +9,14 @@ Engine::~Engine()
 	process_list_.removeAll();
 }
 
-void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin charge_relay, PortPin charge_mosfet)
+void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin capacitor_relay, PortPin charge_relay,
+						PortPin charge_mosfet)
 {
 	// charge mosfet pwm pin declaration
 	motor_vcc_ = motor_vcc;
 	motor_pwm_ = motor_pwm;
 
+	capacitor_relay_ = charge_relay;
 	charge_relay_ = charge_relay;
 	charge_mosfet_ = charge_mosfet;
 
@@ -30,6 +32,9 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin charge_relay, Po
 	motor_vcc_.output();
 
 	// init Capacitors Pins
+	capacitor_relay_.set();
+	capacitor_relay_.output();
+
 	charge_relay_.set();
 	charge_relay_.output();
 
@@ -66,40 +71,40 @@ void Engine::initProcess()
 		// if before mode was capacitor, enable this function.
 		if (current_settings_.mode_ == CAPACITOR) // mode before was capacitor
 		{
-			process_list_ <<  disableMosfet;
-			process_list_ <<  enableRelay;
-			process_list_ <<  disableCapacitor;
+			process_list_ << disableMosfet;
+			process_list_ << enableRelay;
+			process_list_ << disableCapacitor;
 		}
 
 		// charging changed or enabled
-		if (current_settings_.charge_ != new_settings_.charge_ || current_settings_.mode_ != ON)
+		if (current_settings_.charge_ != new_settings_.charge_ ||
+			 current_settings_.charge_pwm_ != new_settings_.charge_pwm_ || current_settings_.mode_ == CAPACITOR)
 		{
-			process_list_ <<  (new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
+			process_list_ << enableChargeCapacitor;
+			process_list_ << (new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
 		}
 
 		if (current_settings_.mode_ != ON)
 		{
-			process_list_ <<  enableRelay;
-			process_list_ <<  enableMosfet;
+			process_list_ << enableRelay;
 		}
+		process_list_ << enableMosfet; // updates also the pwm
 	}
+
 	// ********************************
 	else if (new_settings_.mode_ == OFF)
 	{
 		if (current_settings_.mode_ != OFF)
 		{
-			process_list_ <<  disableMosfet;
-			process_list_ <<  disableRelay;
+			process_list_ << disableMosfet;
+			process_list_ << disableChargeCapacitor;
 			if (current_settings_.mode_ == CAPACITOR)
 			{
-				process_list_ <<  disableCapacitor;
+				process_list_ << disableCapacitor;
 			}
+			process_list_ << disableRelay;
 		}
-		// charge capacitor settings
-		if (current_settings_.charge_ != new_settings_.charge_)
-		{
-			process_list_ <<  (new_new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
-		}
+		// charge not possible
 	}
 
 	// *******************************
@@ -107,19 +112,20 @@ void Engine::initProcess()
 	{
 		if (current_settings_.mode_ != CAPACITOR)
 		{ // on or off
-			process_list_ <<  disableMosfet;
+			process_list_ << disableMosfet;
 
-			process_list_ <<  disableChargeMosfet;
-			process_list_ <<  enableCapacitor;
+			process_list_ << disableChargeMosfet;
+			process_list_ << disableChargeCapacitor;
+			process_list_ << enableCapacitor;
 			if (current_settings_.mode_ == ON)
 			{
-				process_list_ <<  disableRelay;
+				process_list_ << disableRelay;
 			}
-			process_list_ <<  enableMosfet;
+			process_list_ << enableMosfet;
 		}
 	}
 	// ***********************************
-	process_list_ <<  END;
+	process_list_ << END;
 	counter_ = 10;
 }
 
@@ -146,10 +152,20 @@ void Engine::processing()
 
 	else if (step == enableCapacitor)
 	{
-		charge_relay_.clear();
+		capacitor_relay_.clear();
 	}
 
 	else if (step == disableCapacitor)
+	{
+		capacitor_relay_.set();
+	}
+
+	else if (step == enableChargeCapacitor)
+	{
+		charge_relay_.clear();
+	}
+
+	else if (step == disableChargeCapacitor)
 	{
 		charge_relay_.set();
 	}

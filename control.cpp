@@ -8,7 +8,7 @@ Control::Control() : scale_pwm_(0.375), max_pwm_(255)
 
 void Control::init()
 {
-	Engine::init(PortPin(PortPin::D, 7), PortPin(PortPin::B, 1), PortPin(PortPin::D, 2), PortPin(PortPin::D, 5));
+	Engine::init(PortPin(PortPin::D, 7), PortPin(PortPin::B, 1), PortPin(PortPin::D, 2), PortPin(PortPin::C,7), PortPin(PortPin::D, 5));
 	ADC_Init();
 	Engine::setMode(Engine::ON);
 	setCharge(true);

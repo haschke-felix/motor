@@ -15,7 +15,7 @@ public:
 		CAPACITOR,
 	};
 
-	void init(PortPin motor_vcc, PortPin motor_pwm, PortPin charge_relay, PortPin charge_mosfet);
+	void init(PortPin motor_vcc, PortPin motor_pwm, PortPin capacitor_relay, PortPin charge_relay, PortPin charge_mosfet);
 	void process();
 	void initPWM();
 	void setPWM(byte pwm);
@@ -55,6 +55,8 @@ private:
 		disableMosfet,
 		enableCapacitor,
 		disableCapacitor,
+		enableChargeCapacitor,
+		disableChargeCapacitor,
 		enableChargeMosfet,
 		disableChargeMosfet,
 		END,
@@ -62,6 +64,7 @@ private:
 
 	PortPin motor_pwm_;
 	PortPin motor_vcc_;
+	PortPin capacitor_relay_;
 	PortPin charge_relay_;
 	PortPin charge_mosfet_;
 

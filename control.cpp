@@ -1,6 +1,6 @@
 #include "control.h"
-#include "usb.h"
 #include "adc.h"
+#include "usb.h"
 
 Control::Control() : scale_pwm_(0.375), max_pwm_(255)
 {
@@ -18,19 +18,7 @@ void Control::init()
 #define MAX_PWM_INCREASE 5
 void Control::process()
 {
-//	setMode(ON);
-//	setPWM(getPedalSpeed());
-//	if (getPedalSpeed() > 500)
-//	{
-//		bitSet(DDRB, 0);
-//	}
-
-//	else
-//	{
-		bitClear(DDRB, 0);
-//	}
-#if 1
-   static int counter = 0;
+	static int counter = 0;
 	if (counter++ == 0xFF)
 	{
 		counter = 0;
@@ -77,8 +65,7 @@ void Control::process()
 	{
 		pwm_ = getPedalSpeed();
 		// limit pwm increase per cycle
-		if (pwm_ > last_pwm_ + MAX_PWM_INCREASE)
-			pwm_ = last_pwm_ + MAX_PWM_INCREASE;
+		if (pwm_ > last_pwm_ + MAX_PWM_INCREASE) pwm_ = last_pwm_ + MAX_PWM_INCREASE;
 		// apply changes
 		if (pwm_ != last_pwm_)
 		{
@@ -92,9 +79,7 @@ void Control::process()
 		count_ = 0;
 	}
 #endif
-#endif
 }
-
 
 byte Control::getPedalSpeed()
 {
@@ -109,16 +94,16 @@ byte Control::getPedalSpeed()
 	}
 	else
 	{
-		return 255-((value - 400) * 0.51);
+		return 255 - ((value - 400) * 0.51);
 	}
 }
 
 int Control::map(int x, int in_min, int in_max, int out_min, int out_max)
 {
-	int out =  (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
-	if(out < out_min)
+	int out = (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	if (out < out_min)
 		return out_min;
-	else if(out > out_max)
+	else if (out > out_max)
 		return out_max;
 	return out;
 }

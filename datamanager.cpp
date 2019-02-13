@@ -33,7 +33,7 @@ void DataManager::transmitt()
 	USB::print(control_.getPedalSpeed());
 	USB::print(",");
 	USB::print(control_.getMode() == Control::CAPACITOR);
-	USB::print(", ADC1");
+	USB::print(",");
 	USB::print(Measurement::instance().batteryVoltage()); // 24V
 	USB::print(",");
 	USB::print(Measurement::instance().converterVoltage()); // 35V

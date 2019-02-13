@@ -1,11 +1,13 @@
 #pragma once
 #include "Vportpin.h"
 #include "avr.h"
+#include "list.h"
 
 class Engine
 {
 public:
 	Engine();
+	~Engine();
 	enum EngineMode : byte
 	{
 		ON,
@@ -45,6 +47,7 @@ private:
 
 	enum Process : byte
 	{
+		UNUSED,
 		START,
 		enableRelay,
 		disableRelay,
@@ -76,7 +79,7 @@ private:
 	Settings new_settings_;
 	Settings new_new_settings_; // dont use in_process_
 
-	Process *process_ptr_;
-	Process processes_[12];
+	List<Process> process_list_;
+
 	int counter_ = 1;
 };

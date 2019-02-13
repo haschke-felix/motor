@@ -4,6 +4,11 @@ Engine::Engine()
 {
 }
 
+Engine::~Engine()
+{
+	process_list_.removeAll();
+}
+
 void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin charge_relay, PortPin charge_mosfet)
 {
 	// charge mosfet pwm pin declaration
@@ -37,7 +42,7 @@ void Engine::process()
 {
 	if (in_process_)
 	{
-		if (*process_ptr_ == START)
+		if (process_list_.first() == START && !process_list_.isEmpty())
 		{
 			initProcess();
 		}
@@ -61,21 +66,21 @@ void Engine::initProcess()
 		// if before mode was capacitor, enable this function.
 		if (current_settings_.mode_ == CAPACITOR) // mode before was capacitor
 		{
-			processes_[process_counter++] = disableMosfet;
-			processes_[process_counter++] = enableRelay;
-			processes_[process_counter++] = disableCapacitor;
+			process_list_ <<  disableMosfet;
+			process_list_ <<  enableRelay;
+			process_list_ <<  disableCapacitor;
 		}
 
 		// charging changed or enabled
 		if (current_settings_.charge_ != new_settings_.charge_ || current_settings_.mode_ != ON)
 		{
-			processes_[process_counter++] = (new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
+			process_list_ <<  (new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
 		}
 
 		if (current_settings_.mode_ != ON)
 		{
-			processes_[process_counter++] = enableRelay;
-			processes_[process_counter++] = enableMosfet;
+			process_list_ <<  enableRelay;
+			process_list_ <<  enableMosfet;
 		}
 	}
 	// ********************************
@@ -83,17 +88,17 @@ void Engine::initProcess()
 	{
 		if (current_settings_.mode_ != OFF)
 		{
-			processes_[process_counter++] = disableMosfet;
-			processes_[process_counter++] = disableRelay;
+			process_list_ <<  disableMosfet;
+			process_list_ <<  disableRelay;
 			if (current_settings_.mode_ == CAPACITOR)
 			{
-				processes_[process_counter++] = disableCapacitor;
+				process_list_ <<  disableCapacitor;
 			}
 		}
 		// charge capacitor settings
 		if (current_settings_.charge_ != new_settings_.charge_)
 		{
-			processes_[process_counter++] = (new_new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
+			process_list_ <<  (new_new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
 		}
 	}
 
@@ -102,70 +107,67 @@ void Engine::initProcess()
 	{
 		if (current_settings_.mode_ != CAPACITOR)
 		{ // on or off
-			processes_[process_counter++] = disableMosfet;
+			process_list_ <<  disableMosfet;
 
-			processes_[process_counter++] = disableChargeMosfet;
-			processes_[process_counter++] = enableCapacitor;
+			process_list_ <<  disableChargeMosfet;
+			process_list_ <<  enableCapacitor;
 			if (current_settings_.mode_ == ON)
 			{
-				processes_[process_counter++] = disableRelay;
+				process_list_ <<  disableRelay;
 			}
-			processes_[process_counter++] = enableMosfet;
+			process_list_ <<  enableMosfet;
 		}
 	}
 	// ***********************************
-	processes_[process_counter++] = END;
-	process_ptr_ = &processes_[1];
+	process_list_ <<  END;
 	counter_ = 10;
 }
 
 void Engine::processing()
 {
-	if (*process_ptr_ == enableRelay)
+	Process step = process_list_.first();
+	process_list_.removeFirst();
+	if (step == enableRelay)
 	{
 		motor_vcc_.clear();
 	}
-	else if (*process_ptr_ == disableRelay)
+	else if (step == disableRelay)
 	{
 		motor_vcc_.set();
 	}
-	else if (*process_ptr_ == enableMosfet)
+	else if (step == enableMosfet)
 	{
 		processPWM(new_settings_.pwm_);
 	}
-	else if (*process_ptr_ == disableMosfet)
+	else if (step == disableMosfet)
 	{
 		processPWM(0);
 	}
 
-	else if (*process_ptr_ == enableCapacitor)
+	else if (step == enableCapacitor)
 	{
 		charge_relay_.clear();
 	}
 
-	else if (*process_ptr_ == disableCapacitor)
+	else if (step == disableCapacitor)
 	{
 		charge_relay_.set();
 	}
 
-	else if (*process_ptr_ == disableChargeMosfet)
+	else if (step == disableChargeMosfet)
 	{
 		processChargePwm(0);
 	}
 
-	else if (*process_ptr_ == enableChargeMosfet)
+	else if (step == enableChargeMosfet)
 	{
 		processChargePwm(new_settings_.charge_pwm_);
 	}
 
-	else if (*process_ptr_ == END)
+	if (step == END || process_list_.isEmpty())
 	{
-		for (byte i = 0; i < 12; i++)
-		{
-			processes_[i] = END;
-		}
+		process_list_.removeAll();
 		current_settings_ = new_settings_;
-		process_ptr_ = &processes_[0];
 		if (new_new_used_)
 		{
 			new_settings_ = new_new_settings_;
@@ -181,7 +183,6 @@ void Engine::processing()
 		return;
 	}
 	counter_ = 0xFF;
-	++process_ptr_;
 }
 
 void Engine::initPWM()
@@ -258,8 +259,7 @@ void Engine::setMode(Engine::EngineMode mode)
 		in_process_ = true;
 		new_settings_.mode_ = mode;
 		new_settings_.pwm_ = current_settings_.pwm_;
-		processes_[0] = START;
-		process_ptr_ = &processes_[0];
+		process_list_ << START;
 	}
 }
 
@@ -333,8 +333,7 @@ void Engine::setCharge(bool state)
 	{
 		in_process_ = true;
 		new_settings_.charge_ = state;
-		processes_[0] = START;
-		process_ptr_ = &processes_[0];
+		process_list_ << START;
 	}
 }
 

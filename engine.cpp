@@ -276,48 +276,6 @@ Engine::EngineMode Engine::getMode()
 	return current_settings_.mode_;
 }
 
-// void Engine::setCP1(bool state)
-//{
-//	// please set before set mode to capacitor!
-//	if (in_process_)
-//	{
-//		if (!new_new_used_)
-//		{
-//			new_new_settings_ = new_settings_;
-//			new_new_used_ = true;
-//		}
-//		new_new_settings_.cp1_ = state;
-//	}
-//	else
-//	{
-//		in_process_ = true;
-//		new_settings_.cp1_ = state;
-//		processes_[0] = START;
-//		process_ptr_ = &processes_[0];
-//	}
-//}
-
-// void Engine::setCP2(bool state)
-//{
-//	// please set before set mode to capacitor!
-//	if (in_process_)
-//	{
-//		if (!new_new_used_)
-//		{
-//			new_new_settings_ = new_settings_;
-//			new_new_used_ = true;
-//		}
-//		new_new_settings_.cp2_ = state;
-//	}
-//	else
-//	{
-//		in_process_ = true;
-//		new_settings_.cp2_ = state;
-//		processes_[0] = START;
-//		process_ptr_ = &processes_[0];
-//	}
-//}
-
 void Engine::setCharge(bool state)
 {
 	if (in_process_)

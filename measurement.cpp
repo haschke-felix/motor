@@ -8,7 +8,7 @@
 #define SAMPLES 1
 #endif
 
-Measurement::Measurement() : battery_(1), converter_(2), engine_(3), capacitor_plus_(4), capacitor_minus_(5)
+Measurement::Measurement() : battery_(1, SAMPLES), converter_(2, SAMPLES), engine_(3, 50), capacitor_plus_(4,50), capacitor_minus_(5,50)
 {
 	PortPin(PortPin::C, 1).input();
 	PortPin(PortPin::C, 2).input();
@@ -60,25 +60,4 @@ unsigned int Measurement::CapacitorMinus()
 unsigned int Measurement::CapacitorVoltage()
 {
 	return CapacitorPlus() - CapacitorMinus();
-}
-
-
-Measurement::Value::Value(const byte adc_port) : adc_port_(adc_port)
-{
-	for(int i = 0; i < SAMPLES; i++)
-		average_buffer_ << 0;
-}
-void Measurement::Value::process()
-{
-	average_buffer_.removeFirst();
-	average_buffer_ <<  ADC_Read(adc_port_);
-}
-
-unsigned int Measurement::Value::value()
-{
-	unsigned int value;
-	for(int i = 0; i < SAMPLES; i++){
-		value += average_buffer_.itemAt(i);
-	}
-	return value / SAMPLES;
 }

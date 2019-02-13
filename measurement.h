@@ -2,6 +2,7 @@
 #include "adc.h"
 #include "avr.h"
 #include "list.h"
+#include "value.h"
 
 class Measurement
 {
@@ -21,17 +22,6 @@ private:
 	Measurement(); // private constructor for singleton
 	static Measurement instance_;
 
-	class Value
-	{
-	public:
-		Value(const byte adc_port);
-		void process();
-		unsigned int value();
-
-	private:
-		const byte adc_port_;
-		List<unsigned int> average_buffer_;
-	};
 	Value battery_;
 	Value converter_;
 	Value engine_;

@@ -28,8 +28,6 @@ void DataManager::transmitt()
 {
 	PORTC = 0;
 	DDRC = 0;
-	USB::print(int(ADC_Read(0)));
-	USB::print(",");
 	USB::print(control_.getPedalSpeed());
 	USB::print(",");
 	USB::print(control_.getMode() == Control::CAPACITOR);

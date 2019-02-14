@@ -16,7 +16,7 @@ void Engine::init(PortPin motor_vcc, PortPin motor_pwm, PortPin capacitor_relay,
 	motor_vcc_ = motor_vcc;
 	motor_pwm_ = motor_pwm;
 
-	capacitor_relay_ = charge_relay;
+	capacitor_relay_ = capacitor_relay;
 	charge_relay_ = charge_relay;
 	charge_mosfet_ = charge_mosfet;
 
@@ -63,9 +63,8 @@ void Engine::process()
 
 void Engine::initProcess()
 {
-	byte process_counter = 1;
-
 	// ********************************
+	process_list_.removeAll();
 	if (new_settings_.mode_ == ON)
 	{
 		// if before mode was capacitor, enable this function.
@@ -80,7 +79,7 @@ void Engine::initProcess()
 		if (current_settings_.charge_ != new_settings_.charge_ ||
 			 current_settings_.charge_pwm_ != new_settings_.charge_pwm_ || current_settings_.mode_ == CAPACITOR)
 		{
-			process_list_ << enableChargeCapacitor;
+			process_list_ << (new_settings_.charge_ ? enableChargeCapacitor : disableChargeCapacitor);
 			process_list_ << (new_settings_.charge_ ? enableChargeMosfet : disableChargeMosfet);
 		}
 
